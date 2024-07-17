@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bills.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>Billing Page</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="topbar">
+            <div class="logo">
+                <h2>Brand.</h2>
+            </div>
+            <div class="serch">
+                <input type="text" name="" id="search" placeholder="Search For......">
+                <label for="search"><i class="fas fa-search"></i></label>
+            </div>
+            <div class="user">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="user2">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="user3">
+                <span style="font-weight: bold;">Ved </span><i class="fas fa-user-circle"></i>
+            </div>
+            <div class="sidebar">
+                <ul>
+                    <li>
+                        <a href="login">
+                            <i class="fas fa-home"></i>
+                            <div>Home</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="home">
+                            <i class="fas fa-chart-bar"></i>
+                            <div>Dashboard</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="inventory">
+                            <i class="fas fa-clipboard-list"></i>
+                            <div>Inventory</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-message"></i>
+                            <div>Message</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-user"></i>
+                            <div>Customers</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="bills">
+                            <i class="fas fa-money-bill"></i>
+                            <div>Bills</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <i class="fas fa-users"></i>
+                            <div>Staff</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="main">
+                <h1> This is main </h1>
+            </div>
+            <div class="main2">
+
+                <div class="bill">
+                    <div class="header">
+                        <h1>Siddhivinayak Dairy</h1>
+                        <p>Month: June 2024</p>
+                        <p>G.Pay: 9673719071</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Cust. Name</th>
+                                <th colspan="3">Rekha Salunkhe</th>
+                            </tr>
+                            <tr>
+
+                                <th>Cust Id</th>
+                                <th colspan="3">DD36</th>
+                            </tr>
+                            <tr>
+                                <th>Date</th>
+                                <th>Milk Qty1</th>
+                                <th>Date</th>
+                                <th>Milk Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bill-data">
+                            <!-- Data will be inserted here by JavaScript -->
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="2">Total Litters</td>
+                                <td colspan="2" id="total-litters">27</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Rate</td>
+                                <td colspan="2">₹66.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Other</td>
+                                <td colspan="2">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Service/Delivery Charge</td>
+                                <td colspan="2">₹20.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Total Amount</td>
+                                <td colspan="2" id="total-amount">₹1,802.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Pending Bill</td>
+                                <td colspan="2">₹0.00</td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">Total Bill Amt</td>
+                                <td colspan="2" id="total-bill-amt">₹1,802.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            <div class="main3">
+               <h1> This is order message section </h1>
+            </div>
+        </div>
+
+
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script src="chatbot.js"></script>
+    <script src="bill.js"></script>
+</body>
+
+</html>
