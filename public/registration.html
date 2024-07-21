@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Registration</title>
+    <link rel="stylesheet" href="registration.css">
+</head>
+
+<body>
+    <div class="main">
+        <div class="navbar">
+            <div class="logo">VRdairy</div>
+            <div class="user"> | USER </div>
+        </div>
+        <div class="content">
+            <div class="form">
+                <h2>Customer Registration</h2>
+                <form id="registrationForm" action="/register-customer" method="POST">
+                    <input type="text" name="customerName" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="text" name="customerMobileNumber" placeholder="Mobile Number" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
+                    <select name="milkType" required>
+                        <option value="" disabled selected>Select Milk Type</option>
+                        <option value="Buffalo milk">Buffalo milk</option>
+                        <option value="Cow milk">Cow milk</option>
+                        <option value="Gir milk">Gir milk</option>
+                    </select>
+                    <input type="number" name="defaultQuantity" placeholder="Default Quantity" step="0.01" required>
+                    <input type="text" name="address" placeholder="Address" required>
+                    <input type="hidden" name="userId" value="1"> <!-- Replace with actual user ID -->
+                    <input type="submit" class="btn" value="Register">
+                    <p class="link">Already have an account? <a href="login.html">Login here</a></p>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="registration.js"></script>
+</body>
+
+</html>

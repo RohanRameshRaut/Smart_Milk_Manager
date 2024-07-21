@@ -4,15 +4,17 @@ const bodyParser = require('body-parser');
 const session = require('express-session');
 const crypto = require('crypto');
 const path = require('path');
+const socketIo = require('socket.io');
+const http = require('http');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const port = 4000; // Set the port
+const server = http.createServer(app);
+const io = socketIo(server);
 
-// Import the inventory router
-const inventoryRouter = require('./routers/inventory');
-
-// Import the order router
-const orderRouter = require('./routers/order');
+// Set Socket.IO instance to be accessible in routers
+app.set('socketIo', io);
 
 // Serve static files from the "public" directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -36,7 +38,7 @@ connection.connect(err => {
     console.log('Connected to MySQL');
 });
 
-// Middleware to parse request bodies
+// Middleware setup
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -45,84 +47,165 @@ app.use(session({
     secret: secretKey,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false } // Note: for production, set secure: true if using HTTPS
+    cookie: { secure: false } // Set secure: true in production if using HTTPS
 }));
 
-// Middleware to protect routes
-function requireLogin(req, res, next) {
-    if (req.session.loggedIn) {
-        next(); // Allow access to the route
-    } else {
-        res.redirect("/"); // Redirect to login page
+// Import the routers
+const inventoryRouter = require('./routers/inventory');
+const orderRouter = require('./routers/order');
+const customerRouter = require('./routers/customer');
+const customerListRouter = require('./routers/customerList');
+const staffRouter = require('./routers/staff');
+
+// Regestration
+app.get('/register-customer', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'registration.html'));
+});
+
+// Route to handle customer registration
+app.post('/register-customer', async (req, res) => {
+    try {
+        const { customerName, email, customerMobileNumber, password, confirmPassword, milkType, defaultQuantity, address, userId } = req.body;
+
+        if (!customerName || !email || !customerMobileNumber || !password || !confirmPassword || !milkType || !defaultQuantity || !address || !userId) {
+            return res.status(400).send('All fields are required.');
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).send('Passwords do not match.');
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const query = 'INSERT INTO customers (customer_name, email, customer_mobile_number, password, milk_type, default_quantity, address, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+
+        connection.query(query, [customerName, email, customerMobileNumber, hashedPassword, milkType, defaultQuantity, address, userId], (err, result) => {
+            if (err) {
+                console.error('Error inserting data: ' + err.stack);
+                return res.status(500).send('Error registering customer.');
+            }
+            // res.status(200).send('Customer registered successfully.');
+            res.redirect('/login'); // Redirect to login page after successful sign-up
+
+        });
+    } catch (err) {
+        console.error('Error: ' + err.stack);
+        res.status(500).send('Server error.');
     }
-}
+});
+
 
 // Login route
-app.get("/", (req, res) => {
+app.get('/login', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
+// const bcrypt = require('bcrypt'); // Ensure bcrypt is required at the top of your file
 
-app.post("/", (req, res) => {
-    const username = req.body.username;
-    const password = req.body.password;
+app.post('/login', (req, res) => {
+    const { username, password, user_type } = req.body;
+    
+    // Log input values for debugging
+    // console.log('Email:', username);
+    // console.log('Password:', password);
+    // console.log('User Type:', user_type);
 
-    connection.query("SELECT * FROM loginuser WHERE user_name = ? AND user_pass = ?", [username, password], (error, results) => {
-        if (error) {
-            console.error('Error in login query:', error);
-            res.status(500).json({ error: 'Internal server error' });
-            return;
-        }
-
-        if (results.length > 0) {
-            req.session.loggedIn = true;
-            req.session.username = username;
-            const userType = results[0].user_type; // Get the user type from the query results
-            console.log(userType);
-            if (userType === 'admin') {
-                res.redirect("/home");
-            } else if (userType === 'customer') {
-                res.redirect("/customer");
-            } else {
-                res.redirect("/");
+    connection.query(
+        'SELECT * FROM customers WHERE email = ? AND user_type = ?',
+        [username, user_type],
+        (error, results) => {
+            if (error) {
+                console.error('Error in login query:', error);
+                res.status(500).json({ error: 'Internal server error' });
+                return;
             }
-        } else {
-            res.redirect("/");
+
+            // Check if results array has at least one row
+            if (results.length > 0) {
+                const user = results[0];
+
+                // Compare the provided password with the hashed password
+                bcrypt.compare(password, user.password, (err, isMatch) => {
+                    if (err) {
+                        console.error('Error comparing passwords:', err);
+                        res.status(500).json({ error: 'Internal server error' });
+                        return;
+                    }
+
+                    if (isMatch) {
+                        req.session.loggedIn = true;
+                        req.session.username = username;
+
+                        if (user_type === 'admin') {
+                            res.redirect('/home'); // Redirect admin to home page
+                        } else if (user_type === 'customer') {
+                            res.redirect('/customer'); // Redirect customer to customer page
+                        } else {
+                            res.redirect('/login'); // Redirect back to login if userType is neither admin nor customer
+                        }
+                    } else {
+                        console.log('Invalid credentials'); // Log if password does not match
+                        res.redirect('/login'); // Redirect back to login page if credentials are invalid
+                    }
+                });
+            } else {
+                console.log('No user found'); // Log if no results were found
+                res.redirect('/login'); // Redirect back to login page if no user found
+            }
         }
-    });
+    );
 });
+
 
 // Routes for authenticated users
-app.get('/login', requireLogin, (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-app.get('/home', requireLogin, (req, res) => {
+app.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
 
-app.get('/customer', requireLogin, (req, res) => {
+app.get('/customer', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'customer.html'));
 });
 
-app.get('/inventory', requireLogin, (req, res) => {
+app.get('/inventory', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'inventory.html'));
 });
 
-app.get('/bills', requireLogin, (req, res) => {
+app.get('/bills', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'bills.html'));
 });
 
+app.get('/customerList', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'customerList.html'));
+});
+
+app.get('/staff', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'staff.html'));
+});
+
 // Use the inventory router with a prefix
-app.use(inventoryRouter);
+app.use('/inventory', inventoryRouter);
 
 // Use the order router with a prefix
-app.use(orderRouter);
+app.use('/order', orderRouter);
+
+// Use the order router with a prefix
+app.use('/customer', customerRouter);
+
+app.use('/customerList', customerListRouter);
+
+app.use('/staff', staffRouter);
 
 // Start the server
-app.listen(port, () => {
+server.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
 
+// Handle socket connections
+io.on('connection', (socket) => {
+    console.log('A user connected');
 
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});
 
 

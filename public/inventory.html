@@ -58,7 +58,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="customerList">
                         <i class="fas fa-user"></i>
                         <div>Customers</div>
                     </a>
@@ -70,7 +70,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="staff">
                         <i class="fas fa-users"></i>
                         <div>Staff</div>
                     </a>
@@ -83,33 +83,34 @@
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">TODAY'S USE</div>
-                        <div class="number">546ltr</div>
+                        <div class="number" id="todays-use"></div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">TODAY'S STOCK</div>
-                        <div class="number">500ltr</div>
+                        <div class="number" id="todays-stock"></div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">OUT OF STOCK</div>
-                        <div class="number">2 ITEMS</div>
+                        <div class="number" id="out-of-stock"></div>
                     </div>
                 </div>
                 <div class="card">
                     <div class="card-content">
                         <div class="card-name">RUNNING OUT</div>
-                        <div class="number">2 ITEMS</div>
+                        <div class="number" id="running-out"></div>
                     </div>
                 </div>
             </div>
+            
             <div class="chart1">
                 <div class="sicon">
                     <h2> PRODUCTS STOCK LIST </h2>
-                    <i class="fa-solid fa-pen-to-square" id="addProductBtn"></i>
                     <i class="fas fa-eye"></i>
+                    <i class="fa-solid fa-pen-to-square" id="addProductBtn"></i>
                 </div>
                 <div class="sgrid">
                     <table>
@@ -129,17 +130,6 @@
                         </tbody>
                     </table>
                 </div>
-                <div>
-                    <h2>Add New Product</h2>
-                    <form id="inventory-form">
-                        <input type="date" id="date" name="date" placeholder="Date" required>
-                        <input type="text" id="productName" name="productName" placeholder="Product Name" required>
-                        <input type="text" id="stockStatus" name="stockStatus" placeholder="Stock Status" required>
-                        <input type="number" id="inStock" name="inStock" placeholder="In Stock" required>
-                        <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
-                        <button type="submit">Add Product</button>
-                    </form>
-                </div>
             </div>
         </div>
         <div class="main2">
@@ -149,113 +139,24 @@
             </div>
         </div>
     </div>
+    <!-- Add Product Form -->
+    <div id="addForm" style="display: none;">
+        <h2>Add New Product</h2>
+        <form id="inventory-form">
+            <input type="date" id="date" name="date" placeholder="Date" required>
+            <input type="text" id="productName" name="productName" placeholder="Product Name" required>
+            <input type="text" id="stockStatus" name="stockStatus" placeholder="Stock Status" required>
+            <input type="number" id="inStock" name="inStock" placeholder="In Stock" required>
+            <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
+            <button type="submit">Add Product</button>
+            <button type="button" id="cancelAddProduct" style="background-color: red;">Cancel</button>
+        </form>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     <script src="inventoryChart1.js"></script>
     <script src="inventoryChart2.js"></script>
-    <script>
-        // Fetch inventory data from the server
-        document.addEventListener('DOMContentLoaded', function () {
-    setTodayDate(); // Set today's date in the date input field
-    fetchInventoryData();
-});
-
-function setTodayDate() {
-    const today = new Date();
-    const yyyy = today.getFullYear();
-    const mm = String(today.getMonth() + 1).padStart(2, '0');
-    const dd = String(today.getDate()).padStart(2, '0');
-    const formattedDate = `${yyyy}-${mm}-${dd}`;
-    document.getElementById('date').value = formattedDate;
-}
-
-function fetchInventoryData() {
-    fetch('/inventoryData')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const inventoryTableBody = document.getElementById('inventory-table-body');
-            inventoryTableBody.innerHTML = ''; // Clear existing rows
-            data.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.id}</td>
-                    <td>${item.date}</td>
-                    <td>${item.product_name}</td>
-                    <td>${item.stock_status}</td>
-                    <td>${item.in_stock}</td>
-                    <td>${item.quantity}</td>
-                    <td><button onclick="deleteProduct(${item.id})">Delete</button></td>
-                `;
-                inventoryTableBody.appendChild(row);
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching inventory data:', error);
-        });
-}
-
-document.getElementById('inventory-form').addEventListener('submit', function (e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-
-    fetch('/addProduct', {
-        method: 'POST',
-        body: JSON.stringify({
-            date: formData.get('date'),
-            productName: formData.get('productName'),
-            stockStatus: formData.get('stockStatus'),
-            inStock: formData.get('inStock'),
-            quantity: formData.get('quantity')
-        }),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.error) {
-                console.error('Error adding product:', data.error);
-            } else {
-                console.log('Product added successfully');
-                fetchInventoryData(); // Refresh inventory data
-            }
-        })
-        .catch(error => {
-            console.error('Error adding product:', error);
-        });
-});
-
-function deleteProduct(productId) {
-    fetch(`/deleteProduct/${productId}`, { method: 'DELETE' })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                fetchInventoryData(); // Refresh inventory data
-            } else {
-                console.error('Error deleting product:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting product:', error);
-        });
-}
-
-    </script>
+    <script src="inventory.js"></script>
 </body>
 
 </html>

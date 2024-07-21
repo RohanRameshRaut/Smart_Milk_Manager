@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="customerList.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>Customer List</title>
+</head>
+<body>
+    <div class="container">
+        <div class="topbar">
+            <div class="logo">
+                <h2>Brand.</h2>
+            </div>
+            <div class="search">
+                <input type="text" id="search" placeholder="Search For......">
+                <label for="search"><i class="fas fa-search"></i></label>
+            </div>
+            <div class="user">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="user2">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="user3">
+                <span style="font-weight: bold;">Ved </span><i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="login"><i class="fas fa-home"></i><div>Home</div></a></li>
+                <li><a href="home"><i class="fas fa-chart-bar"></i><div>Dashboard</div></a></li>
+                <li><a href="inventory"><i class="fas fa-clipboard-list"></i><div>Inventory</div></a></li>
+                <li><a href="#"><i class="fas fa-message"></i><div>Message</div></a></li>
+                <li><a href="customerList"><i class="fas fa-user"></i><div>Customers</div></a></li>
+                <li><a href="bills"><i class="fas fa-money-bill"></i><div>Bills</div></a></li>
+                <li><a href="staff"><i class="fas fa-users"></i><div>Staff</div></a></li>
+            </ul>
+        </div>
+        <div class="main">
+            <div class="chart1">
+                <div class="sicon">
+                    <h2> CUSTOMER LIST </h2>
+                    <i class="fa-solid fa-pen-to-square" id="addProductBtn"></i>
+                    <i class="fas fa-eye"></i>
+                </div>
+                <div class="sgrid">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>CUSTOMER ID</th>
+                                <th>CUSTOMER NAME</th>
+                                <th>MOBILE NUMBER</th>
+                                <th>MILK TYPE</th>
+                                <th>QUANTITY</th>
+                                <th>ADDRESS</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customerList-table-body">
+                            <!-- New customers will be appended here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Customer Form -->
+    <div id="editCustomerForm" style="display: none;">
+        <h2>Edit Customer</h2>
+        <form id="editForm">
+            <input type="hidden" id="editCustomerId">
+            <label for="editCustomerName">Name:</label>
+            <input type="text" id="editCustomerName" required>
+            <label for="editCustomerMobileNumber">Mobile Number:</label>
+            <input type="text" id="editCustomerMobileNumber" required>
+            <label for="editMilkType">Milk Type:</label>
+            <input type="text" id="editMilkType" required>
+            <label for="editDefaultQuantity">Quantity:</label>
+            <input type="text" id="editDefaultQuantity" required>
+            <label for="editAddress">Address:</label>
+            <input type="text" id="editAddress" required>
+            <button type="submit">Update</button>
+        </form>
+    </div>
+
+    <script src="customerList.js"></script>
+</body>
+</html>

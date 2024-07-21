@@ -14,7 +14,7 @@ connection.connect(err => {
         console.error('Error connecting to MySQL:', err);
         return;
     }
-    console.log('Connected to MySQL');
+    // console.log('Connected to MySQL');
 });
 
 // Route to fetch inventory data
@@ -63,5 +63,25 @@ router.delete('/deleteProduct/:id', (req, res) => {
         res.status(200).json({ message: 'Product deleted successfully' });
     });
 });
+
+// New route to fetch milk data for the chart
+router.get('/milkData', (req, res) => {
+    const sql = `
+        SELECT product_name AS type, SUM(quantity) AS quantity
+        FROM inventory
+        WHERE product_name IN ('Buffelo Milk', 'Cow Milk', 'A2 Milk')
+        GROUP BY product_name
+    `;
+    connection.query(sql, (error, results) => {
+        if (error) {
+            console.error('Error fetching milk data:', error);
+            res.status(500).json({ error: 'Error fetching milk data' });
+            return;
+        }
+        res.json(results);
+    });
+});
+
+
 
 module.exports = router;

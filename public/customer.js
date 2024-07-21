@@ -1,6 +1,21 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     displayMessage("Welcome! Please type your order. Options: 0L, 0.5L, 1L, 2L, 3L, 4L etc.");
+    fetchCustomerData();
 });
+
+function fetchCustomerData() {
+    fetch('/customer/customerData')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('customer-name').textContent = data.customer_name;
+            document.getElementById('customer-id').textContent = data.customer_id;
+            document.getElementById('customer-email').textContent = data.email;
+            document.getElementById('customer-mobile').textContent = data.customer_mobile_number;
+        })
+        .catch(error => {
+            console.error('Error fetching customer data:', error);
+        });
+}
 
 function displayMessage(message, isBot = false) {
     const messageContainer = document.createElement('div');
@@ -41,6 +56,7 @@ function sendMessage(order) {
 // Add event listeners to each order button
 document.getElementById('order0L').addEventListener('click', () => {
     sendMessage('Order 0L');
+    // io.emit('newOrder', { orderId, quantity });
 });
 
 document.getElementById('order0.5L').addEventListener('click', () => {

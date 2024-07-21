@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="staff.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>Employee List</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="topbar">
+            <div class="logo">
+                <h2>Brand.</h2>
+            </div>
+            <div class="search">
+                <input type="text" id="search" placeholder="Search For......">
+                <label for="search"><i class="fas fa-search"></i></label>
+            </div>
+            <div class="user">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="user2">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="user3">
+                <span style="font-weight: bold;">Ved </span><i class="fas fa-user-circle"></i>
+            </div>
+        </div>
+        <div class="sidebar">
+            <ul>
+                <li><a href="login"><i class="fas fa-home"></i>
+                        <div>Home</div>
+                    </a></li>
+                <li><a href="home"><i class="fas fa-chart-bar"></i>
+                        <div>Dashboard</div>
+                    </a></li>
+                <li><a href="inventory"><i class="fas fa-clipboard-list"></i>
+                        <div>Inventory</div>
+                    </a></li>
+                <li><a href="#"><i class="fas fa-message"></i>
+                        <div>Message</div>
+                    </a></li>
+                <li><a href="customerList"><i class="fas fa-user"></i>
+                        <div>Customer</div>
+                    </a></li>
+                <li><a href="bills"><i class="fas fa-money-bill"></i>
+                        <div>Bills</div>
+                    </a></li>
+                <li><a href="staff"><i class="fas fa-users"></i>
+                        <div>Staff</div>
+                    </a></li>
+            </ul>
+        </div>
+        <div class="main">
+            <div class="chart1">
+                <div class="sicon">
+                    <h2> STAFF LIST </h2>
+                    <i class="fas fa-eye" id="addProductBtn"></i>
+                    <i class="fa-solid fa-pen-to-square" id="addStaffBtn"></i>
+                </div>
+                <div class="sgrid">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>EMPLOYEE ID</th>
+                                <th>EMPLOYEE NAME</th>
+                                <th>AGE</th>
+                                <th>MOBILE NUMBER</th>
+                                <th>ADDRESS</th>
+                                <th>DESIGNATION</th>
+                                <th>SALARY</th>
+                                <th>JOINING DATE</th>
+                                <th>ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffList-table-body">
+                            <!-- New staffs will be appended here dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit staff Form -->
+    <div id="editstaffForm" style="display: none;">
+        <h2>Edit staff</h2>
+        <form id="editForm">
+            <input type="hidden" id="editstaffId">
+            <label for="editstaffName">Name:</label>
+            <input type="text" id="editstaffName" required>
+            <label for="editstaffAge">Age:</label>
+            <input type="text" id="editstaffAge" required>
+            <label for="editstaffMobileNumber">Mobile Number:</label>
+            <input type="text" id="editstaffMobileNumber" required>
+            <label for="editstaffAddress">Address:</label>
+            <input type="text" id="editstaffAddress" required>
+            <label for="editstaffDesignation">Designation:</label>
+            <input type="text" id="editstaffDesignation" required>
+            <label for="editstaffSalary">Salary:</label>
+            <input type="text" id="editstaffSalary" required>
+            <label for="editstaffJoiningDate">Joining Date:</label>
+            <input type="date" id="editstaffJoiningDate" required>
+            <button type="submit">Update</button>
+            <button type="button" id="cancelUpdateStaff" style="background-color: red;">Cancel</button>
+        </form>
+    </div>
+<!-- Add Staff Form -->
+<div id="addstaffForm" style="display: none;">
+    <h2>Add Staff</h2>
+    <form id="addForm"> <!-- Form ID should match the JavaScript -->
+        <label for="addstaffName">Name:</label>
+        <input type="text" id="addstaffName" name="name" required>
+        <label for="addstaffAge">Age:</label>
+        <input type="text" id="addstaffAge" name="age" required>
+        <label for="addstaffMobileNumber">Mobile Number:</label>
+        <input type="text" id="addstaffMobileNumber" name="mobileNumber" required>
+        <label for="addstaffAddress">Address:</label>
+        <input type="text" id="addstaffAddress" name="address" required>
+        <label for="addDesignation">Designation:</label>
+        <input type="text" id="addDesignation" name="designation" required>
+        <label for="addSalary">Salary:</label>
+        <input type="text" id="addSalary" name="salary" required>
+        <label for="addJoiningDate">Joining Date:</label>
+        <input type="date" id="addJoiningDate" name="joiningDate" required>
+        <button type="submit">Add</button>
+        <button type="button" id="cancelAddStaff" style="background-color: red;">Cancel</button>
+    </form>
+</div>
+
+
+
+    <script src="staff.js"></script>
+</body>
+
+</html>

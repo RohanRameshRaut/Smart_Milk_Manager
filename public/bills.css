@@ -167,10 +167,38 @@ tfoot td {
     position: absolute;
     top: 60px;
     right: 0px;
-    border: 2px solid red;
+    /* border: 2px solid red; */
     min-height: calc(100vh - 60px);
+    /* min-height: 100vh; */
     width: calc(100% - 1120px);
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    padding: 20px;
+    overflow-y:auto;
 }
+
+h1 {
+    text-align: center;
+}
+
+#notifications {
+    max-width: 600px;
+    max-height: 100vh;
+    /* margin: 0 auto; */
+    /* border: 2px solid red; */
+    /* overflow-y:scroll; */
+
+}
+
+.notification {
+    padding: 10px;
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 10px;
+}
+
+
 
 
 
