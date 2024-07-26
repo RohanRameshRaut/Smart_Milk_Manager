@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="inventory.css">
+    <link rel="stylesheet" href="purchase.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Inventory Page</title>
@@ -79,12 +79,9 @@
         </div>
 
         <div class="main">
-            <div id="dashboard-container">
-                <!-- This div will be populated by JavaScript -->
-            </div>
             <div class="chart1">
                 <div class="sicon">
-                    <h2> PRODUCTS STOCK LIST </h2>
+                    <h2>PURCHASE TABLE</h2>
                     <i class="fas fa-eye"></i>
                     <i class="fa-solid fa-pen-to-square" id="addProductBtn"></i>
                 </div>
@@ -95,23 +92,17 @@
                                 <th>ID</th>
                                 <th>DATE</th>
                                 <th>PRODUCT NAME</th>
-                                <th>PRICE</th>
-                                <th>IN STOCK</th>
                                 <th>QUANTITY</th>
+                                <th>PRICE</th>
+                                <th>TOTAL PRICE</th>
                                 <th>ACTIONS</th>
                             </tr>
                         </thead>
-                        <tbody id="inventory-table-body">
-                            <!-- Inventory items will be appended here dynamically -->
+                        <tbody id="purchase-table-body">
+                            <!-- Purchase items will be appended here dynamically -->
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-        <div class="main2">
-            <div class="chart2" id="doughnut-chart">
-                <h2>Today's</h2>
-                <canvas id="doughnut"></canvas>
             </div>
         </div>
     </div>
@@ -121,18 +112,15 @@
         <form id="inventory-form">
             <input type="date" id="date" name="date" placeholder="Date" required>
             <input type="text" id="productName" name="productName" placeholder="Product Name" required>
-            <input type="number" id="price" name="price" placeholder="Price" required>
-            <input type="text" id="inStock" name="inStock" placeholder="In Stock" required>
             <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
+            <input type="number" id="price" name="price" placeholder="Price" required>
             <button type="submit">Add Product</button>
             <button type="button" id="cancelAddProduct" style="background-color: red;">Cancel</button>
         </form>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <!-- <script src="inventoryChart1.js"></script> -->
-    <script src="inventoryChart2.js"></script>
-    <script src="inventory.js"></script>
+    <script src="purchase.js"></script>
 </body>
 
 </html>

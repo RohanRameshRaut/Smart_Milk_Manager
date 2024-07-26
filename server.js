@@ -56,6 +56,8 @@ const orderRouter = require('./routers/order');
 const customerRouter = require('./routers/customer');
 const customerListRouter = require('./routers/customerList');
 const staffRouter = require('./routers/staff');
+const homeRouter = require('./routers/home');
+const purchaseRouter = require('./routers/purchase');
 
 // Regestration
 app.get('/register-customer', (req, res) => {
@@ -181,6 +183,10 @@ app.get('/staff', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'staff.html'));
 });
 
+app.get('/purchase', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'purchase.html'));
+});
+
 // Use the inventory router with a prefix
 app.use('/inventory', inventoryRouter);
 
@@ -193,6 +199,10 @@ app.use('/customer', customerRouter);
 app.use('/customerList', customerListRouter);
 
 app.use('/staff', staffRouter);
+
+app.use('/home', homeRouter);
+
+app.use('/purchase', purchaseRouter);
 
 // Start the server
 server.listen(port, () => {

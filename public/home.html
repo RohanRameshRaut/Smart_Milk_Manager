@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <title>Admin pannel</title>
 </head>
+
 <body>
     <div class="container">
         <div class="topbar">
@@ -17,140 +18,82 @@
             <div class="serch">
                 <input type="text" name="" id="search" placeholder="Search For......">
                 <label for="search"><i class="fas fa-search"></i></label>
-        </div>
-        <div class="user">
-            <i class="fas fa-bell"></i>
-        </div>
-        <div class="user2">
-            <i class="fas fa-envelope"></i>
-        </div>
-        <div class="user3">
-            <span style="font-weight: bold;">Ved </span><i class="fas fa-user-circle"></i>
-        </div>
-        <div class="sidebar">
-            <ul>
-                <li>
-                    <a href="/login">
-                        <i class="fas fa-home"></i>
-                        <div>Home</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="home">
-                        <i class="fas fa-chart-bar"></i>
-                        <div>Dashboard</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="inventory">
-                        <i class="fas fa-clipboard-list"></i>
-                        <div>Inventory</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-message"></i>
-                        <div>Message</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="customerList">
-                        <i class="fas fa-user"></i>
-                        <div>Customers</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="bills">
-                        <i class="fas fa-money-bill"></i>
-                        <div>Bills</div>
-                    </a>
-                </li>
-                <li>
-                    <a href="staff">
-                        <i class="fas fa-users"></i>
-                        <div>Staff</div>
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="main">
-            <div class="cards">
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Today's Sales</div>
-                        <div class="number">Rs.15,275</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-user-graduate"></i>
-                    </div> -->
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Monthly Sale</div>
-                        <div class="number">Rs.7,56,442</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-chalkboard-teacher"></i>
-                    </div> -->
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Today's Purchase</div>
-                        <div class="number">Rs.6500</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-user"></i>
-                    </div> -->
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Monthly Purchase</div>
-                        <div class="number">Rs.3,34,567</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div> -->
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Today's Requests</div>
-                        <div class="number">85</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div> -->
-                </div>
-                <div class="card">
-                    <div class="card-content">
-                        <div class="card-name">Requests Fulfilled</div>
-                        <div class="number">82</div>
-
-                    </div>
-                    <!-- <div class="icon-box">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div> -->
-                </div>
             </div>
-            <div class="charts">
-                <div class="chart">
-                    <h2>Earnings (past 12 months)</h2>
-                    <canvas id="lineChart"></canvas>
+            <div class="user">
+                <i class="fas fa-bell"></i>
+            </div>
+            <div class="user2">
+                <i class="fas fa-envelope"></i>
+            </div>
+            <div class="user3">
+                <span style="font-weight: bold;">Ved </span><i class="fas fa-user-circle"></i>
+            </div>
+            <div class="sidebar">
+                <ul>
+                    <li>
+                        <a href="/login">
+                            <i class="fas fa-home"></i>
+                            <div>Home</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="home">
+                            <i class="fas fa-chart-bar"></i>
+                            <div>Dashboard</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="inventory">
+                            <i class="fas fa-clipboard-list"></i>
+                            <div>Inventory</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="purchase">
+                            <i class="fas fa-shopping-cart"></i>
+                            <div>Purchase</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="customerList">
+                            <i class="fas fa-user"></i>
+                            <div>Customers</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="bills">
+                            <i class="fas fa-money-bill"></i>
+                            <div>Bills</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="staff">
+                            <i class="fas fa-users"></i>
+                            <div>Staff</div>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="main">
+                <div id="dashboard-container">
+                    <!-- This div will be populated by JavaScript -->
                 </div>
-                <div class="chart" id="doughnut-chart">
-                    <h2>Today's</h2>
-                    <canvas id="doughnut"></canvas>
+                <div class="charts">
+                    <div class="chart">
+                        <h2>Earnings (past 12 months)</h2>
+                        <canvas id="lineChart"></canvas>
+                    </div>
+                    <div class="chart" id="doughnut-chart">
+                        <h2>Today's</h2>
+                        <canvas id="doughnut"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="chart1.js"></script>
-    <script src="chart2.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+        <script src="chart1.js"></script>
+        <script src="home.js"></script>
+        <script src="chart2.js"></script>
 </body>
 
 </html>

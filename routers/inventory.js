@@ -32,13 +32,13 @@ router.get('/inventoryData', (req, res) => {
 
 // Route to handle product addition
 router.post('/addProduct', (req, res) => {
-    const { date, productName, stockStatus, inStock, quantity } = req.body;
+    const { date, productName, price, inStock, quantity } = req.body;
 
     // Log received data to check for issues
     console.log('Received data:', req.body);
 
-    const sql = 'INSERT INTO inventory (date, product_name, stock_status, in_stock, quantity) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [date, productName, stockStatus, inStock, quantity], (error, results) => {
+    const sql = 'INSERT INTO inventory (date, product_name, price, in_stock, quantity) VALUES (?, ?, ?, ?, ?)';
+    connection.query(sql, [date, productName, price, inStock, quantity], (error, results) => {
         if (error) {
             console.error('Error adding product:', error);
             res.status(500).json({ error: 'Error adding product' });
@@ -81,6 +81,90 @@ router.get('/milkData', (req, res) => {
         res.json(results);
     });
 });
+
+router.get('/dashboard-container', (req, res) => {
+    const todaysUseSql = `
+        SELECT SUM(quantity-in_stock) AS todaysUse
+        FROM inventory
+        WHERE DATE(date) = DATE(date) 
+    `;
+
+    const todaysStockSql = `
+        SELECT SUM(quantity) AS todaysStock
+        FROM inventory
+    `;
+
+    const outOfStockSql = `
+        SELECT COUNT(*) AS outOfStock
+        FROM inventory
+        WHERE in_stock = 0
+    `;
+
+    const runningOutSql = `
+        SELECT COUNT(*) AS runningOut
+        FROM inventory
+        WHERE in_stock < 50 AND in_stock > 0
+    `;
+
+    Promise.all([
+        new Promise((resolve, reject) => {
+            connection.query(todaysUseSql, (error, results) => {
+                if (error) {
+                    console.error('Error fetching today\'s use:', error);
+                    reject(error);
+                } else {
+                    console.log('Today\'s Use:', results[0].todaysUse);
+                    resolve(results[0].todaysUse || 0);
+                }
+            });
+        }),
+        new Promise((resolve, reject) => {
+            connection.query(todaysStockSql, (error, results) => {
+                if (error) {
+                    console.error('Error fetching today\'s stock:', error);
+                    reject(error);
+                } else {
+                    console.log('Today\'s Stock:', results[0].todaysStock);
+                    resolve(results[0].todaysStock || 0);
+                }
+            });
+        }),
+        new Promise((resolve, reject) => {
+            connection.query(outOfStockSql, (error, results) => {
+                if (error) {
+                    console.error('Error fetching out of stock:', error);
+                    reject(error);
+                } else {
+                    console.log('Out of Stock:', results[0].outOfStock);
+                    resolve(results[0].outOfStock || 0);
+                }
+            });
+        }),
+        new Promise((resolve, reject) => {
+            connection.query(runningOutSql, (error, results) => {
+                if (error) {
+                    console.error('Error fetching running out:', error);
+                    reject(error);
+                } else {
+                    console.log('Running Out:', results[0].runningOut);
+                    resolve(results[0].runningOut || 0);
+                }
+            });
+        })
+    ])
+    .then(([todaysUse, todaysStock, outOfStock, runningOut]) => {
+        console.log('Dashboard Data:', { todaysUse, todaysStock, outOfStock, runningOut });
+        res.json({ todaysUse, todaysStock, outOfStock, runningOut });
+    })
+    .catch(error => {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).json({ error: 'Error fetching dashboard data' });
+    });
+});
+
+
+
+
 
 
 

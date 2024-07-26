@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', function () {
         addProduct();
     });
 
-     // Add event listener to the Cancel button
-     document.getElementById('cancelAddProduct').addEventListener('click', function() {
+    // Add event listener to the Cancel button
+    document.getElementById('cancelAddProduct').addEventListener('click', function () {
         const addForm = document.getElementById('addForm');
         addForm.style.display = 'none'; // Hide the form
         document.getElementById('inventory-form').reset(); // Reset form values
@@ -48,7 +48,7 @@ function fetchInventoryData() {
                     <td>${item.id}</td>
                     <td>${item.date}</td>
                     <td>${item.product_name}</td>
-                    <td>${item.stock_status}</td>
+                    <td>${item.price}</td>
                     <td>${item.in_stock}</td>
                     <td>${item.quantity}</td>
                     <td><button onclick="deleteProduct(${item.id})">Delete</button></td>
@@ -62,26 +62,66 @@ function fetchInventoryData() {
 }
 
 // cardData
+// Function to insert the initial HTML structure into the dashboard container
+function insertHTML() {
+    const htmlContent = `
+        <div class="cards">
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-name">TODAY'S USE</div>
+                    <div class="number" id="todays-use">Loading...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-name">TODAY'S STOCK</div>
+                    <div class="number" id="todays-stock">Loading...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-name">OUT OF STOCK</div>
+                    <div class="number" id="out-of-stock">Loading...</div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-content">
+                    <div class="card-name">RUNNING OUT</div>
+                    <div class="number" id="running-out">Loading...</div>
+                </div>
+            </div>
+        </div>
+    `;
 
-function fetchCardData() {
-    fetch('/inventory/cardData') // Your backend endpoint to get card data
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+    document.getElementById('dashboard-container').innerHTML = htmlContent;
+}
+
+// Function to fetch data from the server and update the dashboard
+function fetchData() {
+    fetch('/inventory/dashboard-container')
+        .then(response => response.json())
         .then(data => {
-            // Assuming `data` is an object with properties `todayUse`, `todayStock`, `outOfStock`, and `runningOut`
-            document.getElementById('todays-use').textContent = `${data.todayUse}ltr`;
-            document.getElementById('todays-stock').textContent = `${data.todayStock}ltr`;
-            document.getElementById('out-of-stock').textContent = `${data.outOfStock} ITEMS`;
-            document.getElementById('running-out').textContent = `${data.runningOut} ITEMS`;
+            // Update HTML elements with the fetched data
+            document.getElementById('todays-use').textContent = data.todaysUse || 'N/A';
+            document.getElementById('todays-stock').textContent = data.todaysStock || 'N/A';
+            document.getElementById('out-of-stock').textContent = data.outOfStock || 'N/A';
+            document.getElementById('running-out').textContent = data.runningOut || 'N/A';
         })
         .catch(error => {
-            console.error('Error fetching card data:', error);
+            console.error('Error fetching data:', error);
         });
 }
+
+// Initialize the dashboard by inserting HTML and fetching data
+function initializeDashboard() {
+    insertHTML(); // Insert the HTML structure
+    fetchData();  // Fetch and display the data
+}
+
+// Call initializeDashboard to set up the dashboard when the page loads
+window.onload = initializeDashboard;
+
+
 
 function addProduct() {
     const formData = new FormData(document.getElementById('inventory-form'));
@@ -91,7 +131,7 @@ function addProduct() {
         body: JSON.stringify({
             date: formData.get('date'),
             productName: formData.get('product_name'),
-            stockStatus: formData.get('stock_status'),
+            price: formData.get('price'),
             inStock: formData.get('in_stock'),
             quantity: formData.get('quantity')
         }),
