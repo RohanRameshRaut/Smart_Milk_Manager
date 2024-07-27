@@ -186,7 +186,7 @@ h1 {
     max-height: 100vh;
     /* margin: 0 auto; */
     /* border: 2px solid red; */
-    /* overflow-y:scroll; */
+    overflow-y:scroll;
 
 }
 

@@ -58,6 +58,7 @@ const customerListRouter = require('./routers/customerList');
 const staffRouter = require('./routers/staff');
 const homeRouter = require('./routers/home');
 const purchaseRouter = require('./routers/purchase');
+const billRouter = require('./routers/bill');
 
 // Regestration
 app.get('/register-customer', (req, res) => {
@@ -95,7 +96,6 @@ app.post('/register-customer', async (req, res) => {
         res.status(500).send('Server error.');
     }
 });
-
 
 // Login route
 app.get('/login', (req, res) => {
@@ -187,22 +187,16 @@ app.get('/purchase', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'purchase.html'));
 });
 
-// Use the inventory router with a prefix
+// Use the routers
 app.use('/inventory', inventoryRouter);
-
-// Use the order router with a prefix
 app.use('/order', orderRouter);
-
-// Use the order router with a prefix
 app.use('/customer', customerRouter);
-
 app.use('/customerList', customerListRouter);
-
 app.use('/staff', staffRouter);
-
 app.use('/home', homeRouter);
-
 app.use('/purchase', purchaseRouter);
+app.use('/bill', billRouter);
+
 
 // Start the server
 server.listen(port, () => {

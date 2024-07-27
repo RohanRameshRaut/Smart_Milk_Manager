@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const moment = require('moment');
 
 // Use the database connection from the main server
 const connection = mysql.createConnection({
@@ -24,28 +25,26 @@ router.post('/', (req, res) => {
     let reply = "Sorry, I didn't understand that.";
 
     // Simple logic to handle orders
-    let quantity = '';
+    let quantity = 0;
     if (message.includes('0L')) {
         reply = "You have ordered 0L liters of milk.";
-        quantity = '0L';
     } else if (message.includes('0.5L')) {
         reply = "You have ordered 0.5 liter of milk.";
-        quantity = '0.5L';
+        quantity = 0.50;
     } else if (message.includes('1L')) {
-        reply = "You have ordered 1 liters of milk.";
-        quantity = '1L';
+        reply = "You have ordered 1 liter of milk.";
+        quantity = 1.00;
     } else if (message.includes('2L')) {
         reply = "You have ordered 2 liters of milk.";
-        quantity = '2L';
+        quantity = 2.00;
     } else if (message.includes('3L')) {
         reply = "You have ordered 3 liters of milk.";
-        quantity = '3L';
+        quantity = 3.00;
     } else if (message.includes('4L')) {
         reply = "You have ordered 4 liters of milk.";
-        quantity = '4L';
+        quantity = 4.00;
     } else {
-        res.json({ reply });
-        return;
+        return res.json({ reply });
     }
 
     // Get customer data first
@@ -60,6 +59,7 @@ router.post('/', (req, res) => {
                 console.error('Error saving order:', err);
                 return res.status(500).json({ reply: "Internal server error" });
             }
+
             console.log('Order saved:', orderId, quantity);
             res.json({ reply });
             req.app.get('socketIo').emit('newOrder', {
@@ -92,11 +92,12 @@ function getCustomerData(username, callback) {
 // Function to save order to MySQL
 function saveOrder(orderDetails, callback) {
     const { quantity, customerId } = orderDetails;
+    const sale_date = moment().format('YYYY-MM-DD'); // Get today's date for the sale
 
     if (quantity && customerId) {
-        // If quantity and customerId are provided, insert into orders table
-        const query = 'INSERT INTO orders (quantity, bot_reply, customer_id) VALUES (?, "Order received", ?)';
-        connection.query(query, [quantity, customerId], (err, results) => {
+        // Insert into orders table
+        const insertOrderQuery = 'INSERT INTO orders (quantity, bot_reply, customer_id) VALUES (?, "Order received", ?)';
+        connection.query(insertOrderQuery, [quantity, customerId], (err, results) => {
             if (err) {
                 console.error('Error saving order:', err);
                 callback(err);
@@ -104,6 +105,19 @@ function saveOrder(orderDetails, callback) {
             }
             console.log('Order saved with ID:', results.insertId);
             callback(null, results.insertId);
+
+            // Update the daily_sales table with the ordered quantity
+            const updateDailySalesQuery = `
+                INSERT INTO daily_sales (sale_date, customer_id, quantity)
+                VALUES (?, ?, ?)
+                ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)
+            `;
+            connection.query(updateDailySalesQuery, [sale_date, customerId, quantity], (err) => {
+                if (err) {
+                    console.error('Error updating daily sales:', err);
+                    // You might want to handle this error as well
+                }
+            });
         });
     } else {
         callback(new Error('Invalid order details provided'));

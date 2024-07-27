@@ -40,6 +40,13 @@ function fetchCustomerData() {
                 });
             });
 
+            // Add event listener to the Cancel button
+            document.getElementById('cancelAddProduct').addEventListener('click', function () {
+                const editCustomerForm = document.getElementById('editCustomerForm');
+                editCustomerForm.style.display = 'none'; // Hide the form
+                document.getElementById('editForm').reset(); // Reset form values
+            });
+
             // Add event listeners for edit buttons
             document.querySelectorAll('.edit-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -55,17 +62,17 @@ function deleteCustomer(customerId) {
     fetch(`/customerList/customerData/${customerId}`, {
         method: 'DELETE',
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Customer deleted:', data);
-        fetchCustomerData(); // Refresh the customer list
-    })
-    .catch(error => console.error('Error deleting customer:', error));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Customer deleted:', data);
+            fetchCustomerData(); // Refresh the customer list
+        })
+        .catch(error => console.error('Error deleting customer:', error));
 }
 
 function editCustomer(customerId) {
@@ -110,16 +117,16 @@ document.getElementById('editCustomerForm').addEventListener('submit', (e) => {
             address,
         }),
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Customer updated:', data);
-        document.getElementById('editCustomerForm').style.display = 'none';
-        fetchCustomerData(); // Refresh the customer list
-    })
-    .catch(error => console.error('Error updating customer:', error));
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Customer updated:', data);
+            document.getElementById('editCustomerForm').style.display = 'none';
+            fetchCustomerData(); // Refresh the customer list
+        })
+        .catch(error => console.error('Error updating customer:', error));
 });

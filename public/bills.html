@@ -88,15 +88,17 @@
                         <thead>
                             <tr>
                                 <th>Cust. Name</th>
-                                <th colspan="3">Rekha Salunkhe</th>
+                                <th colspan="3" id="customer-name">Rekha Salunkhe</th>
                             </tr>
                             <tr>
                                 <th>Cust Id</th>
-                                <th colspan="3">DD36</th>
+                                <th colspan="3">
+                                    <input type="text" id="customer-id" placeholder="Enter Customer ID" />
+                                </th>
                             </tr>
                             <tr>
                                 <th>Date</th>
-                                <th>Milk Qty1</th>
+                                <th>Milk Qty</th>
                                 <th>Date</th>
                                 <th>Milk Qty</th>
                             </tr>
@@ -106,8 +108,8 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <td colspan="2">Total Litters</td>
-                                <td colspan="2" id="total-litters">27</td>
+                                <td colspan="2">Total Liters</td>
+                                <td colspan="2" id="total-liters">0</td>
                             </tr>
                             <tr>
                                 <td colspan="2">Rate</td>
@@ -136,45 +138,14 @@
                         </tfoot>
                     </table>
                 </div>
-            </div>
+            </div>  
             <div class="main3">
                 <h1>Admin Panel</h1>
                 <div id="notifications"></div>
                 <div id="customer-info">
                     <!-- Customer data will be displayed here -->
                 </div>
-                <script src="/socket.io/socket.io.js"></script>
-                <!-- /socket.io/socket.io.js -->
-                <script>
-                    const socket = io();
-                    socket.on('newOrder', function (data) {
-                        const notificationsDiv = document.getElementById('notifications');
-                        const orderDiv = document.createElement('div');
-                        orderDiv.classList.add('notification');
-                        orderDiv.innerHTML = `
-                        <p><strong>Customer Name:</strong> ${data.customer_name}</p>
-                        <p><strong>Customer ID:</strong> ${data.customer_id}</p>
-                        <p><strong>Customer Mobile:</strong> ${data.customer_mobile_number}</p>
-                        <p><strong>Quantity:</strong> ${data.quantity}</p>
-    `;
-                        notificationsDiv.prepend(orderDiv);
-                    });
-
-                    function fetchCustomerData(customerId) {
-                        fetch(`/customer/customerData`)
-                            .then(response => response.json())
-                            .then(data => {
-                                document.getElementById('customer-info').innerHTML = `
-                                    <p><strong>Name:</strong> ${data.customer_name}</p>
-                                    <p><strong>ID:</strong> ${data.customer_id}</p>
-                                    <p><strong>Email:</strong> ${data.email}</p>
-                                    <p><strong>Mobile:</strong> ${data.customer_mobile_number}</p>
-                                `;
-                            })
-                            .catch(error => console.error('Error fetching customer data:', error));
-                    }
-                </script>
-
+                <script src="/socket.io/socket.io.js"></script>          
             </div>
         </div>
     </div>
