@@ -187,6 +187,7 @@ app.get('/purchase', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'purchase.html'));
 });
 
+
 // Use the routers
 app.use('/inventory', inventoryRouter);
 app.use('/order', orderRouter);

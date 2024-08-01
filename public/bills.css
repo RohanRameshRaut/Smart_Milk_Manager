@@ -117,11 +117,11 @@
     display: flex;
     justify-content: center;  /* Horizontally center .bill */
     align-items: center;  /* Vertically center .bill */
+    /* overflow-y: scroll; */
 }
 
 .bill {
     position: absolute;
-    top: 30px;
     padding: 10px;
     margin: 10px;
     background-color: white;

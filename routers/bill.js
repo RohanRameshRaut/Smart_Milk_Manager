@@ -57,28 +57,65 @@ router.get('/insert-daily-sales', (req, res) => {
     res.send('Daily sales records inserted successfully!');
 });
 
+
+// Create an endpoint to fetch data for a specific customer
 router.get('/billData/:customerId', (req, res) => {
     const customerId = req.params.customerId;
+    const month = parseInt(req.query.month); // Get month from query parameters
+    const year = parseInt(req.query.year);   // Get year from query parameters
 
-    const query = `
+    // SQL query to fetch data for the selected month and year
+    const sql = `
         SELECT 
-            ds1.sale_date AS date1, ds1.quantity AS qty1, 
-            ds2.sale_date AS date2, ds2.quantity AS qty2
-        FROM daily_sales ds1
-        LEFT JOIN daily_sales ds2 ON ds1.customer_id = ds2.customer_id 
-            AND ds1.sale_date < ds2.sale_date
-        WHERE ds1.customer_id = ?
-        ORDER BY ds1.sale_date
+            c.customer_name AS customer_name,
+            DATE_FORMAT(ds.sale_date, '%d') AS date,
+            ds.quantity 
+        FROM 
+            daily_sales ds
+        JOIN
+            customers c ON ds.customer_id = c.customer_id
+        WHERE 
+            ds.customer_id = ? AND
+            MONTH(ds.sale_date) = ? AND
+            YEAR(ds.sale_date) = ?
+        ORDER BY 
+            ds.sale_date ASC
     `;
 
-    connection.query(query, [customerId], (err, results) => {
+    connection.query(sql, [customerId, month, year], (err, results) => {
         if (err) {
-            console.error('Error fetching sales data:', err);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            console.error('Error fetching data:', err);
+            return res.status(500).send('Error fetching data');
         }
-        res.json({ sales: results });
+
+        // Create arrays for days 1-15 and days 16-31
+        const days1To15 = Array.from({ length: 15 }, (_, index) => ({
+            date: (index + 1).toString().padStart(2, '0'),
+            qty: 0
+        }));
+
+        const days16ToEnd = Array.from({ length: 16 }, (_, index) => ({
+            date: (index + 16).toString().padStart(2, '0'),
+            qty: 0
+        }));
+
+        // Fill in the actual data
+        results.forEach(row => {
+            const day = parseInt(row.date);
+
+            if (day >= 1 && day <= 15) {
+                days1To15[day - 1].qty = row.quantity;
+            } else if (day >= 16 && day <= 31) {
+                days16ToEnd[day - 16].qty = row.quantity;
+            }
+        });
+
+        res.json({
+            customerName: results.length > 0 ? results[0].customer_name : 'No Data',
+            days1To15,
+            days16ToEnd
+        });
     });
 });
 
-// Export the router
 module.exports = router;
