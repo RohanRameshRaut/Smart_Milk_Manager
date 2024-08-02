@@ -1,148 +1,110 @@
-// Set current month and year
-document.addEventListener("DOMContentLoaded", () => {
-    const monthSelect = document.getElementById("month-select");
-    const yearSelect = document.getElementById("year-select");
+document.addEventListener('DOMContentLoaded', () => {
+    const monthSelect = document.getElementById('month-select');
+    const yearSelect = document.getElementById('year-select');
+    const fetchDataButton = document.getElementById('fetch-data');
+    const customerIdInput = document.getElementById('customer-id');
+    const customerNameElement = document.getElementById('customer-name');
+    const totalLitersElement = document.getElementById('total-liters');
+    const totalAmountElement = document.getElementById('total-amount');
+    const totalBillAmtElement = document.getElementById('total-bill-amt');
 
-    // Populate month dropdown
-    const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ];
-    monthNames.forEach((month, index) => {
-        const option = document.createElement("option");
-        option.value = index + 1; // Months are 1-based
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1; // JavaScript months are 0-indexed
+
+    // Populate month and year selects
+    months.forEach((month, index) => {
+        const option = document.createElement('option');
+        option.value = index + 1;
         option.textContent = month;
         monthSelect.appendChild(option);
     });
 
-    // Populate year dropdown
-    const now = new Date();
-    const currentYear = now.getFullYear();
-    for (let i = currentYear - 10; i <= currentYear; i++) {
-        const option = document.createElement("option");
-        option.value = i;
-        option.textContent = i;
+    for (let year = currentYear; year >= currentYear - 10; year--) {
+        const option = document.createElement('option');
+        option.value = year;
+        option.textContent = year;
         yearSelect.appendChild(option);
     }
 
-    // Set default values
-    monthSelect.value = now.getMonth() + 1; // Current month
-    yearSelect.value = currentYear; // Current year
+    // Set default values for month and year
+    monthSelect.value = currentMonth;
+    yearSelect.value = currentYear;
 
-    // Fetch data when the button is clicked
-    document.getElementById("fetch-data").addEventListener("click", () => {
-        const customerId = document.getElementById("customer-id").value;
-        const selectedMonth = monthSelect.value;
-        const selectedYear = yearSelect.value;
-        if (customerId) {
-            fetchData(customerId, selectedMonth, selectedYear);
-        } else {
-            alert("Please enter a customer ID.");
+    fetchDataButton.addEventListener('click', async () => {
+        const month = monthSelect.value;
+        const year = yearSelect.value;
+        const customerId = customerIdInput.value;
+
+        if (!month || !year || !customerId) {
+            alert('Please select month, year, and enter customer ID.');
+            return;
         }
+
+        const response = await fetch(`/bill/billData?month=${month}&year=${year}&customer_id=${customerId}`);
+        const data = await response.json();
+
+        if (data.error) {
+            alert(data.error);
+            return;
+        }
+
+        // Update customer name
+        customerNameElement.textContent = data.customerName || 'Customer Name Not Found';
+
+        // Reset the table rows for the given month
+        const rows = document.querySelectorAll('table tbody tr');
+
+        // Initialize total liters
+        let totalLiters = 0;
+
+        // Map sales data to table rows
+        rows.forEach(row => {
+            const dateCell1 = row.children[0];
+            const qtyCell1 = row.children[1];
+            const dateCell2 = row.children[2];
+            const qtyCell2 = row.children[3];
+
+            const date1 = parseInt(dateCell1.textContent);
+            const date2 = parseInt(dateCell2.textContent);
+
+            // Initialize quantities for both cells
+            qtyCell1.textContent = '0';
+            qtyCell2.textContent = '0';
+
+            if (data.salesData) {
+                // Check if the sales data matches the first date cell
+                if (date1) {
+                    const entry1 = data.salesData.find(e => {
+                        const entryDate = new Date(e.sale_date);
+                        return entryDate.getDate() === date1 && entryDate.getMonth() + 1 === parseInt(month);
+                    });
+                    if (entry1) {
+                        qtyCell1.textContent = entry1.quantity;
+                        totalLiters += entry1.quantity;
+                    }
+                }
+
+                // Check if the sales data matches the second date cell
+                if (date2) {
+                    const entry2 = data.salesData.find(e => {
+                        const entryDate = new Date(e.sale_date);
+                        return entryDate.getDate() === date2 && entryDate.getMonth() + 1 === parseInt(month);
+                    });
+                    if (entry2) {
+                        qtyCell2.textContent = entry2.quantity;
+                        totalLiters += entry2.quantity;
+                    }
+                }
+            }
+        });
+
+        totalLitersElement.textContent = totalLiters.toFixed(2);
+        totalAmountElement.textContent = `₹${(totalLiters * 66 + 20).toFixed(2)}`; // Assuming rate ₹66 and delivery charge ₹20
+        totalBillAmtElement.textContent = totalAmountElement.textContent;
     });
 });
-// Function to fetch data from the server
-function fetchData(customerId, month, year) {
-    fetch(`/bill/billData/${customerId}?month=${month}&year=${year}`, {
-        method: 'GET',
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            populateData(data);
-        })
-        .catch(error => {
-            console.error("Error fetching data:", error);
-        });
-}
 
-// Function to populate data in the table
-function populateData(data) {
-    const salesDataElement = document.getElementById("sales-data");
-    salesDataElement.innerHTML = "";
-
-    // Display customer name
-    document.getElementById("customer-name").textContent = data.customerName;
-
-    // Initialize rows for days 1-31
-    const rows = Array.from({ length: 31 }, (_, index) => ({
-        day: index + 1,
-        date1: '',
-        qty1: 0,
-        date2: '',
-        qty2: 0
-    }));
-
-    // Process days 1-15
-    data.days1To15.forEach(entry => {
-        const day = parseInt(entry.date);
-        if (day <= 15) {  // Ensure it only covers the first 15 days
-            rows[day - 1].date1 = `Day ${day}`;
-            rows[day - 1].qty1 = parseFloat(entry.qty) || 0;
-        }
-    });
-
-    // Process days 16-31
-    data.days16ToEnd.forEach(entry => {
-        const day = parseInt(entry.date);
-        if (day >= 16) {  // Ensure it only covers from day 16 to the end
-            rows[day - 1].date2 = `Day ${day}`;
-            rows[day - 1].qty2 = parseFloat(entry.qty) || 0;
-        }
-    });
-
-    // Create and append rows to the table
-    rows.forEach((rowData, index) => {
-        const row = document.createElement("tr");
-
-        // Day 1-15 (Date 1) cell
-        const date1Cell = document.createElement("td");
-        date1Cell.textContent = rowData.day <= 15 ? rowData.date1 : '';
-        row.appendChild(date1Cell);
-
-        // Quantity 1 cell
-        const qty1Cell = document.createElement("td");
-        qty1Cell.textContent = rowData.day <= 15 ? rowData.qty1.toFixed(2) : '';
-        row.appendChild(qty1Cell);
-
-        // Day 16-31 (Date 2) cell
-        const date2Cell = document.createElement("td");
-        date2Cell.textContent = rowData.day >= 16 ? rowData.date2 : '';
-        row.appendChild(date2Cell);
-
-        // Populate the table
-        // const tableBody = document.getElementById('sales-data');
-        // tableBody.innerHTML = `
-        //     <tr>
-        //         <td>${rowData.day}</td>
-        //         <td>${row.qty2}</td>
-        //     </tr>
-        // `;
-
-        // Quantity 2 cell
-        const qty2Cell = document.createElement("td");
-        qty2Cell.textContent = rowData.day >= 16 ? rowData.qty2.toFixed(2) : '';
-        row.appendChild(qty2Cell);
-
-        salesDataElement.appendChild(row);
-    });
-
-    // Calculate total liters
-    const totalLiters = rows.reduce((sum, row) => sum + row.qty1 + row.qty2, 0);
-    document.getElementById("total-liters").textContent = totalLiters.toFixed(2);
-
-    // Calculate total amount
-    const rate = 66; // Set the rate per liter
-    const serviceCharge = 20;
-    const totalAmount = (totalLiters * rate) + serviceCharge;
-
-    document.getElementById("total-amount").textContent = `₹${totalAmount.toFixed(2)}`;
-    document.getElementById("total-bill-amt").textContent = `₹${totalAmount.toFixed(2)}`;
-}
 
 // *****************************************************************************************
 const socket = io();
