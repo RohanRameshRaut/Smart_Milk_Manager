@@ -1,14 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="loginApp">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> VR DAIRY MANAGEMENT SYSTEM </title>
+    <title>VR DAIRY MANAGEMENT SYSTEM</title>
     <link rel="stylesheet" href="login.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script>
+        angular.module('loginApp', [])
+            .controller('LoginController', ['$scope', function ($scope) {
+                $scope.user = {};
+
+                $scope.submitForm = function (form) {
+                    if (form.$valid) {
+                        // Form is valid, submit the form
+                        form.submit(); // This triggers the native form submission
+                    } else {
+                        // Form is invalid, show validation errors
+                        alert('Please correct the errors in the form.');
+                    }
+                };
+            }]);
+    </script>
 </head>
-<body>
+
+<body ng-controller="LoginController">
     <div class="main">
         <div class="navbar">
             <div class="icon">
@@ -19,14 +37,22 @@
         <div class="content">
             <div class="form">
                 <h2>Login</h2>
-                <form action="/login" method="POST">
-                    <input type="email" name="username" placeholder="Email" required>
-                    <input type="password" name="password" placeholder="Password" required>
+                <form name="loginForm" ng-submit="submitForm(loginForm)" action="/login" method="POST" novalidate>
+                    <div class="form-group">
+                        <input type="email" name="username" ng-model="user.username" placeholder="Email" required>
+                        <span class="error" ng-show="loginForm.username.$touched && loginForm.username.$error.required">Email is required.</span>
+                        <span class="error" ng-show="loginForm.username.$touched && loginForm.username.$error.email">Invalid email address.</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" name="password" ng-model="user.password" placeholder="Password" required>
+                        <span class="error" ng-show="loginForm.password.$touched && loginForm.password.$error.required">Password is required.</span>
+                    </div>
                     <div class="user_type">
                         <label for="admin">Admin</label>
-                        <input type="radio" id="admin" name="user_type" value="admin" required>
+                        <input type="radio" id="admin" name="user_type" ng-model="user.user_type" value="admin" required>
                         <label for="customer">Customer</label>
-                        <input type="radio" id="customer" name="user_type" value="customer" required>
+                        <input type="radio" id="customer" name="user_type" ng-model="user.user_type" value="customer" required>
+                        <span class="error" ng-show="loginForm.user_type.$touched && loginForm.user_type.$error.required">Please select a user type.</span>
                     </div>
                     <p class="link">? Forgot Password</p>
                     <input type="submit" class="btn" value="LOGIN"><br><br>
@@ -40,7 +66,3 @@
 </body>
 
 </html>
-
-<!-- app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-}); -->

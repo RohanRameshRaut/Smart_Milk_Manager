@@ -105,12 +105,6 @@ app.get('/login', (req, res) => {
 
 app.post('/login', (req, res) => {
     const { username, password, user_type } = req.body;
-    
-    // Log input values for debugging
-    // console.log('Email:', username);
-    // console.log('Password:', password);
-    // console.log('User Type:', user_type);
-
     connection.query(
         'SELECT * FROM customers WHERE email = ? AND user_type = ?',
         [username, user_type],
@@ -156,7 +150,6 @@ app.post('/login', (req, res) => {
         }
     );
 });
-
 
 // Routes for authenticated users
 app.get('/home', (req, res) => {

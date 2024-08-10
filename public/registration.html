@@ -1,15 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="registrationApp">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Customer Registration</title>
     <link rel="stylesheet" href="registration.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
 </head>
 
 <body>
-    <div class="main">
+    <div class="main" ng-controller="registrationController">
         <div class="navbar">
             <div class="logo">VRdairy</div>
             <div class="user"> | USER </div>
@@ -17,28 +18,67 @@
         <div class="content">
             <div class="form">
                 <h2>Customer Registration</h2>
-                <form id="registrationForm" action="/register-customer" method="POST">
-                    <input type="text" name="customerName" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Email" required>
-                    <input type="text" name="customerMobileNumber" placeholder="Mobile Number" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <input type="password" name="confirmPassword" placeholder="Confirm Password" required>
-                    <select name="milkType" required>
+                <form id="registrationForm" name="registrationForm" action="/register-customer" method="POST" novalidate>
+                    <input type="text" name="customerName" placeholder="Full Name" ng-model="customer.customerName" required>
+                    <span ng-show="registrationForm.customerName.$touched && registrationForm.customerName.$invalid" class="error">Full Name is required.</span>
+
+                    <input type="email" name="email" placeholder="Email" ng-model="customer.email" required>
+                    <span ng-show="registrationForm.email.$touched && registrationForm.email.$invalid" class="error">Valid Email is required.</span>
+
+                    <input type="text" name="customerMobileNumber" placeholder="Mobile Number" ng-model="customer.customerMobileNumber" required ng-pattern="/^\d{10}$/">
+                    <span ng-show="registrationForm.customerMobileNumber.$touched && registrationForm.customerMobileNumber.$invalid" class="error">Valid Mobile Number is required (10 digits).</span>
+
+                    <input type="password" name="password" placeholder="Password" ng-model="customer.password" required>
+                    <span ng-show="registrationForm.password.$touched && registrationForm.password.$invalid" class="error">Password is required.</span>
+
+                    <input type="password" name="confirmPassword" placeholder="Confirm Password" ng-model="customer.confirmPassword" required pw-match="customer.password">
+                    <span ng-show="registrationForm.confirmPassword.$touched && registrationForm.confirmPassword.$error.pwmatch" class="error">Passwords do not match.</span>
+
+                    <select name="milkType" ng-model="customer.milkType" required>
                         <option value="" disabled selected>Select Milk Type</option>
                         <option value="Buffalo milk">Buffalo milk</option>
                         <option value="Cow milk">Cow milk</option>
                         <option value="Gir milk">Gir milk</option>
                     </select>
-                    <input type="number" name="defaultQuantity" placeholder="Default Quantity" step="0.01" required>
-                    <input type="text" name="address" placeholder="Address" required>
+                    <span ng-show="registrationForm.milkType.$touched && registrationForm.milkType.$invalid" class="error">Milk Type is required.</span>
+
+                    <input type="number" name="defaultQuantity" placeholder="Default Quantity" ng-model="customer.defaultQuantity" step="0.01" required>
+                    <span ng-show="registrationForm.defaultQuantity.$touched && registrationForm.defaultQuantity.$invalid" class="error">Default Quantity is required.</span>
+
+                    <input type="text" name="address" placeholder="Address" ng-model="customer.address" required>
+                    <span ng-show="registrationForm.address.$touched && registrationForm.address.$invalid" class="error">Address is required.</span>
+
                     <input type="hidden" name="userId" value="1"> <!-- Replace with actual user ID -->
-                    <input type="submit" class="btn" value="Register">
+                    <input type="submit" class="btn" value="Register" ng-disabled="registrationForm.$invalid">
                     <p class="link">Already have an account? <a href="login.html">Login here</a></p>
                 </form>
             </div>
         </div>
     </div>
-    <script src="registration.js"></script>
+
+    <script>
+        // AngularJS Application Module
+        var app = angular.module('registrationApp', []);
+
+        // Custom Directive to match passwords
+        app.directive('pwMatch', [function () {
+            return {
+                require: 'ngModel',
+                link: function (scope, elem, attrs, ctrl) {
+                    scope.$watch(function () {
+                        return scope.$eval(attrs.pwMatch) === ctrl.$modelValue;
+                    }, function (isValid) {
+                        ctrl.$setValidity('pwmatch', isValid);
+                    });
+                }
+            };
+        }]);
+
+        // Registration Controller
+        app.controller('registrationController', ['$scope', function ($scope) {
+            $scope.customer = {};
+        }]);
+    </script>
 </body>
 
 </html>
