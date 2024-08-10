@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const totalLitersElement = document.getElementById('total-liters');
     const totalAmountElement = document.getElementById('total-amount');
     const totalBillAmtElement = document.getElementById('total-bill-amt');
+    const rateElement = document.getElementById('rate'); // Element to display the rate
 
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     const currentYear = new Date().getFullYear();
@@ -51,6 +52,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Update customer name
         customerNameElement.textContent = data.customerName || 'Customer Name Not Found';
+
+        // Determine the rate based on milk type
+        let ratePerLiter;
+        switch (data.milkType) {
+            case 'Buffalo milk':
+                ratePerLiter = 68;
+                break;
+            case 'Cow milk':
+                ratePerLiter = 55;
+                break;
+            case 'Gir milk':
+                ratePerLiter = 75;
+                break;
+            default:
+                ratePerLiter = 0; // Default to 0 if milk type is unknown
+        }
+
+        // Display the rate on the page
+        rateElement.textContent = `₹${ratePerLiter}`;
 
         // Reset the table rows for the given month
         const rows = document.querySelectorAll('table tbody tr');
@@ -99,8 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        // Calculate total amount based on total liters and rate
         totalLitersElement.textContent = totalLiters.toFixed(2);
-        totalAmountElement.textContent = `₹${(totalLiters * 66 + 20).toFixed(2)}`; // Assuming rate ₹66 and delivery charge ₹20
+        const totalAmount = totalLiters * ratePerLiter + 50; // Assuming delivery charge ₹50
+        totalAmountElement.textContent = `₹${totalAmount.toFixed(2)}`;
         totalBillAmtElement.textContent = totalAmountElement.textContent;
     });
 });

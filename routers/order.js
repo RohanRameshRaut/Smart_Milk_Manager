@@ -20,7 +20,7 @@ connection.connect(err => {
 });
 
 // POST request to handle orders
-router.post('/', (req, res) => {
+router.post('/orderData', (req, res) => {
     const { message } = req.body;
     let reply = "Sorry, I didn't understand that.";
 
@@ -28,6 +28,7 @@ router.post('/', (req, res) => {
     let quantity = 0;
     if (message.includes('0L')) {
         reply = "You have ordered 0L liters of milk.";
+        quantity = 0.00;
     } else if (message.includes('0.5L')) {
         reply = "You have ordered 0.5 liter of milk.";
         quantity = 0.50;
@@ -93,8 +94,7 @@ function getCustomerData(username, callback) {
 function saveOrder(orderDetails, callback) {
     const { quantity, customerId } = orderDetails;
     const sale_date = moment().format('YYYY-MM-DD'); // Get today's date for the sale
-
-    if (quantity && customerId) {
+    
         // Insert into orders table
         const insertOrderQuery = 'INSERT INTO orders (quantity, bot_reply, customer_id) VALUES (?, "Order received", ?)';
         connection.query(insertOrderQuery, [quantity, customerId], (err, results) => {
@@ -119,9 +119,6 @@ function saveOrder(orderDetails, callback) {
                 }
             });
         });
-    } else {
-        callback(new Error('Invalid order details provided'));
-    }
 }
 
 module.exports = router;

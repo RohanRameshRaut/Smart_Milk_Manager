@@ -1,30 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Milk Order Chatbox</title>
     <link rel="stylesheet" href="customer.css">
 </head>
+
 <body>
-    <div class="customer-info">
-        <h1>Welcome, <span id="customer-name"></span></h1>
-        <p>ID: <span id="customer-id"></span></p>
-        <p>Email: <span id="customer-email"></span></p>
-        <p>Mobile: <span id="customer-mobile"></span></p>
-    </div>
-    <div class="chatBox">
-        <h1>This is chatBox</h1>
-        <div id="messages"></div>
-        <div class="menu-buttons">
-            <button id="order0L">Order 0L</button>
-            <button id="order0.5L">Order 0.5L</button>
-            <button id="order1L">Order 1L</button>
-            <button id="order2L">Order 2L</button>
-            <button id="order3L">Order 3L</button>
-            <button id="order4L">Order 4L</button>
+    <div class="container">
+        <div class="main2">
+            <div class="bill">
+                <div class="header">
+                    <h1>Siddhivinayak Dairy</h1>
+                    <!-- <p id="month-year">Month: June 2024</p> Month and year will be dynamically set -->
+                    <div class="controls">
+                        <label for="month-select">Month:</label>
+                        <select id="month-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    
+                        <label for="year-select">Year:</label>
+                        <select id="year-select">
+                            <!-- Options will be populated dynamically -->
+                        </select>
+                    
+                        <button id="fetch-data">Fetch Data</button>
+                    </div>
+                    <p>G.Pay: 9673719071</p>
+                </div>
+                <table>
+                    <thead >
+                        <tr>
+                            <th>Cust. Name</th>
+                            <th colspan="3" id="customer-name">Loading...</th>
+                        </tr>
+                        <tr>
+                            <th>Cust Id</th>
+                            <th colspan="3" id="customer-id">Loading...</th>
+                        </tr>
+                        <tr>
+                            <th id="date_1to15">Date</th>
+                            <th id="qty_1to15">Milk Qty</th>
+                            <th id="date_16toend">Date</th>
+                            <th id="qty_16toend">Milk Qty</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         <tr>
+                            <td>01</td>
+                            <td>Null</td>
+                            <td>16</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>02</td>
+                            <td>Null</td>
+                            <td>17</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>03</td>
+                            <td>Null</td>
+                            <td>18</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>04</td>
+                            <td>Null</td>
+                            <td>19</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>05</td>
+                            <td>Null</td>
+                            <td>20</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>06</td>
+                            <td>Null</td>
+                            <td>21</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>07</td>
+                            <td>Null</td>
+                            <td>22</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>08</td>
+                            <td>Null</td>
+                            <td>23</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>09</td>
+                            <td>Null</td>
+                            <td>24</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>10</td>
+                            <td>Null</td>
+                            <td>25</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>11</td>
+                            <td>Null</td>
+                            <td>26</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>12</td>
+                            <td>Null</td>
+                            <td>27</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>13</td>
+                            <td>Null</td>
+                            <td>28</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>14</td>
+                            <td>Null</td>
+                            <td>29</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td>15</td>
+                            <td>Null</td>
+                            <td>30</td>
+                            <td>Null</td>
+                         </tr>
+                         <tr>
+                            <td></td>
+                            <td></td>
+                            <td>31</td>
+                            <td>Null</td>
+                         </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="2">Total Liters</td>
+                            <td colspan="2" id="total-liters">Null</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Rate</td>
+                            <td colspan="2" id="rate">Null</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Other</td>
+                            <td colspan="2">₹0.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Service/Delivery Charge</td>
+                            <td colspan="2">₹50.00</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">Total Amount</td>
+                            <td colspan="2" id="total-amount">Null</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>   
+        </div>
+        <div class="customer-info">
+            <h1>Welcome, <span id="customer_name"></span></h1>
+            <p>ID: <span id="customer_id"></span></p>
+            <p>Email: <span id="customer-email"></span></p>
+            <p>Mobile: <span id="customer-mobile"></span></p>
+        </div>
+        <div class="chatBox">
+            <h1>This is chatBox</h1>
+            <div id="messages"></div>
+            <div class="menu-buttons">
+                <button id="order0L">Order 0L</button>
+                <button id="order0.5L">Order 0.5L</button>
+                <button id="order1L">Order 1L</button>
+                <button id="order2L">Order 2L</button>
+                <button id="order3L">Order 3L</button>
+                <button id="order4L">Order 4L</button>
+            </div>
         </div>
     </div>
     <script src="customer.js"></script>
 </body>
+
 </html>

@@ -57,7 +57,6 @@ router.get('/insert-daily-sales', (req, res) => {
     res.send('Daily sales records inserted successfully!');
 });
 
-
 // Create an endpoint to fetch data for a specific customer
 router.get('/billData', (req, res) => {
     const month = req.query.month;
@@ -71,9 +70,9 @@ router.get('/billData', (req, res) => {
     const startDate = `${year}-${month.padStart(2, '0')}-01`;
     const endDate = `${year}-${month.padStart(2, '0')}-${new Date(year, month, 0).getDate()}`;
 
-    // Fetch customer name and sales data
+    // Fetch customer name, milk type, and sales data
     const query = `
-        SELECT cs.customer_name, ds.sale_date, ds.quantity
+        SELECT cs.customer_name, cs.milk_type, ds.sale_date, ds.quantity
         FROM daily_sales ds
         JOIN customers cs ON ds.customer_id = cs.customer_id
         WHERE ds.customer_id = ? AND ds.sale_date BETWEEN ? AND ?
@@ -88,14 +87,15 @@ router.get('/billData', (req, res) => {
             return res.status(404).json({ error: 'No data found' });
         }
 
-        // Extract customer name and sales data
+        // Extract customer name, milk type, and sales data
         const customerName = results[0].customer_name;
+        const milkType = results[0].milk_type;
         const salesData = results.map(row => ({
             sale_date: row.sale_date,
             quantity: row.quantity
         }));
 
-        res.json({ customerName, salesData });
+        res.json({ customerName, milkType, salesData });
     });
 });
 

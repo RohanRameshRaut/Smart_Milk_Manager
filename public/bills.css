@@ -113,7 +113,7 @@
     left: 490px;
     width: 630px;
     min-height: calc(100vh - 60px);
-    border: 2px solid black;
+    /* border: 2px solid black; */
     display: flex;
     justify-content: center;  /* Horizontally center .bill */
     align-items: center;  /* Vertically center .bill */
