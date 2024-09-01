@@ -16,6 +16,30 @@ connection.connect(err => {
     }
     // console.log('Connected to MySQL');
 });
+// Endpoint to get earnings data from daily_sales
+router.get('/earnings', (req, res) => {
+    const query = `
+      SELECT 
+        DATE_FORMAT(date, '%b') AS month, 
+        SUM((quantity - in_stock) * price) AS total_earnings
+      FROM inventory
+      GROUP BY DATE_FORMAT(date, '%m'), month
+      ORDER BY DATE_FORMAT(date, '%m');
+    `;
+  
+    connection.query(query, (err, results) => {
+      if (err) {
+        res.status(500).json({ error: 'Database query failed' });
+        return;
+      }
+  
+      const labels = results.map(row => row.month);
+      const data = results.map(row => row.total_earnings);
+  
+      res.json({ labels, data });
+    });
+});
+
 
 // Assuming you have already set up your Express app and MySQL connection
 
@@ -70,33 +94,36 @@ router.get('/dashboard-container', (req, res) => {
     `;
 
     const monthlySalesSql = `
-        SELECT SUM(amount) AS monthlySales
+        SELECT SUM((quantity - in_stock) * price) AS monthlySales
         FROM inventory
-        WHERE MONTH(updated_at) = MONTH(CURDATE())
+        WHERE DATE(date) >= DATE_FORMAT(date, '%Y-%m-01')
+        AND DATE(date) < DATE_FORMAT(date + INTERVAL 1 MONTH, '%Y-%m-01');
+
     `;
 
     const todaysPurchaseSql = `
-        SELECT SUM(amount) AS todaysPurchase
-        FROM purchases
-        WHERE DATE(updated_at) = CURDATE()
+        SELECT SUM(total_price) AS todaysPurchase
+        FROM purchase
+        WHERE DATE(date) = DATE(date)
     `;
 
     const monthlyPurchaseSql = `
-        SELECT SUM(amount) AS monthlyPurchase
-        FROM purchases
-        WHERE MONTH(updated_at) = MONTH(CURDATE())
+        SELECT SUM(total_price) AS monthlyPurchase
+        FROM purchase
+        WHERE DATE(date) >= DATE_FORMAT(date, '%Y-%m-01')
+        AND DATE(date) < DATE_FORMAT(date + INTERVAL 1 MONTH, '%Y-%m-01');
     `;
 
     const todaysRequestsSql = `
         SELECT COUNT(*) AS todaysRequests
-        FROM requests
-        WHERE DATE(requested_at) = CURDATE()
+        FROM orders
+        WHERE DATE(created_at) = CURDATE()
     `;
 
     const requestsFulfilledSql = `
         SELECT COUNT(*) AS requestsFulfilled
-        FROM requests
-        WHERE DATE(fulfilled_at) = CURDATE()
+        FROM orders
+        WHERE DATE(created_at) = CURDATE()
     `;
 
     Promise.all([

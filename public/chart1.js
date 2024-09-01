@@ -1,16 +1,34 @@
-const ctx = document.getElementById('lineChart');
+const ctx = document.getElementById('lineChart').getContext('2d');
 
-new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    datasets: [{
-      label: 'Earnings in $',
-      data: [500000, 550000, 620000, 625000, 612000, 750000, 630000, 618000, 575000, 606000, 578000, 595000],
-      borderWidth: 1
-    }]
-  },
-  options: {
-    responsive: true
-  }
-});
+fetch('/home/earnings')
+  .then(response => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+  })
+  .then(data => {
+      new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: data.labels,
+              datasets: [{
+                  label: 'Earnings in Rs.',
+                  data: data.data,
+                  borderWidth: 1,
+                  borderColor: 'rgba(75, 192, 192, 1)',
+                  backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                  fill: true
+              }]
+          },
+          options: {
+              responsive: true,
+              scales: {
+                  y: {
+                      beginAtZero: true
+                  }
+              }
+          }
+      });
+  })
+  .catch(error => console.error('Error fetching data:', error));
