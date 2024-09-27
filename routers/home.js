@@ -26,17 +26,17 @@ router.get('/earnings', (req, res) => {
       GROUP BY DATE_FORMAT(date, '%m'), month
       ORDER BY DATE_FORMAT(date, '%m');
     `;
-  
+
     connection.query(query, (err, results) => {
-      if (err) {
-        res.status(500).json({ error: 'Database query failed' });
-        return;
-      }
-  
-      const labels = results.map(row => row.month);
-      const data = results.map(row => row.total_earnings);
-  
-      res.json({ labels, data });
+        if (err) {
+            res.status(500).json({ error: 'Database query failed' });
+            return;
+        }
+
+        const labels = results.map(row => row.month);
+        const data = results.map(row => row.total_earnings);
+
+        res.json({ labels, data });
     });
 });
 
@@ -115,13 +115,14 @@ router.get('/dashboard-container', (req, res) => {
     `;
 
     const todaysRequestsSql = `
-        SELECT COUNT(*) AS todaysRequests
+        SELECT COUNT(id) AS todaysRequests
         FROM orders
         WHERE DATE(created_at) = CURDATE()
     `;
 
+
     const requestsFulfilledSql = `
-        SELECT COUNT(*) AS requestsFulfilled
+        SELECT COUNT(bot_reply) AS requestsFulfilled
         FROM orders
         WHERE DATE(created_at) = CURDATE()
     `;
