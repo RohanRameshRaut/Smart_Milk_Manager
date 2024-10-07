@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.delete-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const id = button.getAttribute('data-id');
-                fetch(`/purchase/delete/${id}`, { method: 'DELETE' })
+                fetch(`/purchase/deleteProduct/${id}`, { method: 'DELETE' })
                     .then(() => fetchPurchaseData())
                     .catch(error => console.error('Error deleting purchase data:', error));
             });
