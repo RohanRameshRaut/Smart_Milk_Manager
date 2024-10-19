@@ -55,7 +55,7 @@ router.post('/orderData', (req, res) => {
             return res.status(500).json({ reply: "Internal server error" });
         }
 
-        saveOrder({ quantity, customerId: customerData.customer_id }, (err, orderId) => {
+        saveOrder({ quantity, customerId: customerData.customer_id, milkType: customerData.milk_type}, (err, orderId) => {
             if (err) {
                 console.error('Error saving order:', err);
                 return res.status(500).json({ reply: "Internal server error" });
@@ -92,7 +92,7 @@ function getCustomerData(username, callback) {
 
 // Function to save order to MySQL
 function saveOrder(orderDetails, callback) {
-    const { quantity, customerId } = orderDetails;
+    const { quantity, customerId, milkType} = orderDetails;
     const sale_date = moment().format('YYYY-MM-DD'); // Get today's date for the sale
     
         // Insert into orders table
@@ -108,16 +108,33 @@ function saveOrder(orderDetails, callback) {
 
             // Update the daily_sales table with the ordered quantity
             const updateDailySalesQuery = `
-                INSERT INTO daily_sales (sale_date, customer_id, quantity)
-                VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE quantity = VALUES(quantity)
-            `;
+            INSERT INTO daily_sales (sale_date, customer_id, quantity)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE 
+            quantity = quantity + VALUES(quantity)  
+        `;
+        
             connection.query(updateDailySalesQuery, [sale_date, customerId, quantity], (err) => {
                 if (err) {
                     console.error('Error updating daily sales:', err);
                     // You might want to handle this error as well
                 }
             });
+
+                    // Update the inventory table by reducing the quantity of milk
+        const updateInventoryQuery = `
+        UPDATE inventory
+        SET quantity = quantity - ? 
+        WHERE LOWER(product_name) = LOWER(?)
+    `;
+    connection.query(updateInventoryQuery, [quantity, milkType], (err) => {
+        if (err) {
+            console.error('Error updating inventory:', err);
+            // You might want to handle this error as well
+        } else {
+            console.log('Inventory updated successfully for milk type:', milkType);
+        }
+    });
         });
 }
 

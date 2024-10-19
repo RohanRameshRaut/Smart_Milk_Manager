@@ -30,24 +30,57 @@ router.get('/inventoryData', (req, res) => {
     });
 });
 
-// Route to handle product addition
+// Route to handle product addition or update
 router.post('/addProduct', (req, res) => {
-    const { date, productName, price, inStock, quantity } = req.body;
+    const { date, product_name, price, quantity } = req.body;
 
     // Log received data to check for issues
     console.log('Received data:', req.body);
 
-    const sql = 'INSERT INTO inventory (date, product_name, price, in_stock, quantity) VALUES (?, ?, ?, ?, ?)';
-    connection.query(sql, [date, productName, price, inStock, quantity], (error, results) => {
+    // First, check if the product already exists in the inventory
+    const checkProductQuery = 'SELECT * FROM inventory WHERE product_name = ?';
+    connection.query(checkProductQuery, [product_name], (error, results) => {
         if (error) {
-            console.error('Error adding product:', error);
-            res.status(500).json({ error: 'Error adding product' });
+            console.error('Error checking product:', error);
+            res.status(500).json({ error: 'Error checking product' });
             return;
         }
-        console.log('Product added successfully');
-        res.status(200).json({ message: 'Product added successfully' });
+
+        if (results.length > 0) {
+            // Product exists, update the record
+            const updateProductQuery = `
+                UPDATE inventory 
+                SET date = ?, price = ?, quantity = quantity + ?
+                WHERE product_name = ?
+            `;
+            connection.query(updateProductQuery, [date, price, quantity, product_name], (updateError) => {
+                if (updateError) {
+                    console.error('Error updating product:', updateError);
+                    res.status(500).json({ error: 'Error updating product' });
+                    return;
+                }
+                console.log('Product updated successfully');
+                res.status(200).json({ message: 'Product updated successfully' });
+            });
+        } else {
+            // Product doesn't exist, insert new record
+            const insertProductQuery = `
+                INSERT INTO inventory (date, product_name, price, quantity) 
+                VALUES (?, ?, ?, ?, ?)
+            `;
+            connection.query(insertProductQuery, [date, product_name, price, quantity], (insertError) => {
+                if (insertError) {
+                    console.error('Error adding product:', insertError);
+                    res.status(500).json({ error: 'Error adding product' });
+                    return;
+                }
+                console.log('Product added successfully');
+                res.status(200).json({ message: 'Product added successfully' });
+            });
+        }
     });
 });
+
 
 // Route to delete a product by ID
 router.delete('/deleteProduct/:id', (req, res) => {
@@ -69,7 +102,7 @@ router.get('/milkData', (req, res) => {
     const sql = `
         SELECT product_name AS type, SUM(quantity) AS quantity
         FROM inventory
-        WHERE product_name IN ('Buffelo Milk', 'Cow Milk', 'A2 Milk')
+        WHERE product_name IN ('Buffalo Milk', 'Cow Milk', 'Gir Milk')
         GROUP BY product_name
     `;
     connection.query(sql, (error, results) => {
@@ -84,7 +117,7 @@ router.get('/milkData', (req, res) => {
 
 router.get('/dashboard-container', (req, res) => {
     const todaysUseSql = `
-        SELECT SUM(quantity-in_stock) AS todaysUse
+        SELECT SUM(quantity) AS todaysUse
         FROM inventory
         WHERE DATE(date) = DATE(date) 
     `;
@@ -97,13 +130,13 @@ router.get('/dashboard-container', (req, res) => {
     const outOfStockSql = `
         SELECT COUNT(*) AS outOfStock
         FROM inventory
-        WHERE in_stock = 0
+        WHERE quantity = 0
     `;
 
     const runningOutSql = `
         SELECT COUNT(*) AS runningOut
         FROM inventory
-        WHERE in_stock < 50 AND in_stock > 0
+        WHERE quantity < 50 AND quantity > 0
     `;
 
     Promise.all([

@@ -12,7 +12,7 @@ const ctx2 = document.getElementById('doughnut');
               datasets: [{
                   label: 'Milk',
                   data: [data.purchase, data.sale],
-                  backgroundColor: ['Red', 'Green'],
+                  backgroundColor: ['Blue', 'Green'],
                   hoverOffset: 4
               }]
           }

@@ -59,8 +59,8 @@ function fetchData() {
             // Update HTML elements with the fetched data
             document.getElementById('todays-sales').textContent = `Rs. ${data.todaysSales || 'N/A'}`;
             document.getElementById('monthly-sales').textContent = `Rs. ${data.monthlySales || 'N/A'}`;
-            document.getElementById('todays-purchase').textContent = `Rs. ${data.todaysPurchase || 'N/A'}`;
-            document.getElementById('monthly-purchase').textContent = `Rs. ${data.monthlyPurchase || 'N/A'}`;
+            // document.getElementById('todays-purchase').textContent = `Rs. ${data.todaysPurchase || 'N/A'}`;
+            // document.getElementById('monthly-purchase').textContent = `Rs. ${data.monthlyPurchase || 'N/A'}`;
             document.getElementById('todays-requests').textContent = data.todaysRequests || 'N/A';
             document.getElementById('requests-fulfilled').textContent = data.requestsFulfilled || 'N/A';
         })

@@ -16,15 +16,28 @@ connection.connect(err => {
     }
     // console.log('Connected to MySQL');
 });
+
 // Endpoint to get earnings data from daily_sales
 router.get('/earnings', (req, res) => {
     const query = `
-      SELECT 
-        DATE_FORMAT(date, '%b') AS month, 
-        SUM((quantity - in_stock) * price) AS total_earnings
-      FROM inventory
-      GROUP BY DATE_FORMAT(date, '%m'), month
-      ORDER BY DATE_FORMAT(date, '%m');
+        SELECT 
+            DATE_FORMAT(ds.sale_date, '%b') AS month, 
+            SUM(ds.quantity * 
+                CASE 
+                    WHEN c.milk_type = 'Buffalo milk' THEN 68
+                    WHEN c.milk_type = 'Cow milk' THEN 55
+                    WHEN c.milk_type = 'Gir milk' THEN 75
+                    ELSE 0
+                END
+            ) AS total_earnings
+        FROM 
+            daily_sales ds
+        JOIN 
+            customers c ON ds.customer_id = c.customer_id
+        GROUP BY 
+            YEAR(ds.sale_date), MONTH(ds.sale_date), month
+        ORDER BY 
+            YEAR(ds.sale_date), MONTH(ds.sale_date);
     `;
 
     connection.query(query, (err, results) => {
@@ -40,20 +53,21 @@ router.get('/earnings', (req, res) => {
     });
 });
 
-
-// Assuming you have already set up your Express app and MySQL connection
-
+// Endpoint to fetch milk data
 router.get('/milk-data', (req, res) => {
     const purchaseSql = `
         SELECT SUM(quantity) AS purchase
         FROM inventory
-        WHERE DATE(date) = DATE(date) 
+        WHERE DATE(date) = DATE(date);
     `;
 
     const saleSql = `
-        SELECT SUM(quantity-in_stock) AS sale
-        FROM inventory
-        WHERE DATE(date) = DATE(date) 
+        SELECT 
+            SUM(ds.quantity) AS todaysSalesInLiters
+        FROM 
+            daily_sales ds
+        WHERE 
+            DATE(ds.sale_date) = DATE(ds.sale_date);
     `;
 
     Promise.all([
@@ -62,7 +76,7 @@ router.get('/milk-data', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].purchase || 0);
+                    resolve(results[0]?.purchase || 0);
                 }
             });
         }),
@@ -71,60 +85,137 @@ router.get('/milk-data', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].sale || 0);
+                    resolve(results[0]?.todaysSalesInLiters || 0);
                 }
             });
         })
     ])
-        .then(([purchase, sale]) => {
-            res.json({ purchase, sale });
-        })
-        .catch(error => {
-            console.error('Error fetching milk data:', error);
-            res.status(500).json({ error: 'Error fetching milk data' });
-        });
+    .then(([purchase, sale]) => {
+        res.json({ purchase, sale });
+    })
+    .catch(error => {
+        console.error('Error fetching milk data:', error);
+        res.status(500).json({ error: 'Error fetching milk data' });
+    });
 });
 
 // Backend endpoint to provide the necessary dashboard data
 router.get('/dashboard-container', (req, res) => {
     const todaysSalesSql = `
-        SELECT SUM((quantity - in_stock) * price) AS todaysSales
-        FROM inventory
-        WHERE DATE(date) = DATE(date)
+        SELECT 
+            SUM(ds.quantity * 
+                CASE 
+                    WHEN c.milk_type = 'Buffalo milk' THEN 68
+                    WHEN c.milk_type = 'Cow milk' THEN 55
+                    WHEN c.milk_type = 'Gir milk' THEN 75
+                    ELSE 0
+                END
+            ) AS todaysSalesInRupees
+        FROM 
+            daily_sales ds
+        JOIN 
+            customers c ON ds.customer_id = c.customer_id
+        WHERE 
+            DATE(ds.sale_date) = CURDATE();
     `;
 
     const monthlySalesSql = `
-        SELECT SUM((quantity - in_stock) * price) AS monthlySales
-        FROM inventory
-        WHERE DATE(date) >= DATE_FORMAT(date, '%Y-%m-01')
-        AND DATE(date) < DATE_FORMAT(date + INTERVAL 1 MONTH, '%Y-%m-01');
-
+        SELECT 
+            SUM(ds.quantity * 
+                CASE 
+                    WHEN c.milk_type = 'Buffalo milk' THEN 68
+                    WHEN c.milk_type = 'Cow milk' THEN 55
+                    WHEN c.milk_type = 'Gir milk' THEN 75
+                    ELSE 0
+                END
+            ) AS monthlySalesInRupees
+        FROM 
+            daily_sales ds
+        JOIN 
+            customers c ON ds.customer_id = c.customer_id
+        WHERE 
+            MONTH(ds.sale_date) = MONTH(CURDATE()) 
+            AND YEAR(ds.sale_date) = YEAR(CURDATE());
     `;
 
     const todaysPurchaseSql = `
-        SELECT SUM(total_price) AS todaysPurchase
-        FROM purchase
-        WHERE DATE(date) = DATE(date)
+      SELECT 
+    -- Today's sales in rupees based on milk type and quantity sold
+    COALESCE(SUM(ds.quantity * 
+        CASE 
+            WHEN c.milk_type = 'Buffalo milk' THEN 56
+            WHEN c.milk_type = 'Cow milk' THEN 42
+            WHEN c.milk_type = 'Gir milk' THEN 62
+            ELSE 0
+        END), 0) AS todaysSalesInRupees,
+
+    -- Total inventory quantity
+    COALESCE((SELECT SUM(quantity) FROM inventory), 0) AS totalInventoryQuantity,
+
+    -- Today's purchase calculated as today's inventory quantity + today's daily sales quantity
+    COALESCE((SELECT SUM(quantity) FROM inventory), 0) - 
+    COALESCE(SUM(ds.quantity), 0) AS todaysPurchase
+
+FROM 
+    daily_sales ds
+JOIN 
+    customers c ON ds.customer_id = c.customer_id
+WHERE 
+    DATE(ds.sale_date) = CURDATE();
+
+
     `;
 
     const monthlyPurchaseSql = `
-        SELECT SUM(total_price) AS monthlyPurchase
-        FROM purchase
-        WHERE DATE(date) >= DATE_FORMAT(date, '%Y-%m-01')
-        AND DATE(date) < DATE_FORMAT(date + INTERVAL 1 MONTH, '%Y-%m-01');
+       SELECT 
+    COALESCE(SUM(ds.quantity * 
+        CASE 
+            WHEN c.milk_type = 'Buffalo milk' THEN 68
+            WHEN c.milk_type = 'Cow milk' THEN 55
+            WHEN c.milk_type = 'Gir milk' THEN 75
+            ELSE 0
+        END), 0) AS todaysSalesInRupees,
+        
+    COALESCE((SELECT SUM(quantity) FROM inventory), 0) AS totalInventoryQuantity,
+
+    -- Today's Purchase
+    COALESCE(SUM(ds.quantity * 
+        CASE 
+            WHEN c.milk_type = 'Buffalo milk' THEN 68
+            WHEN c.milk_type = 'Cow milk' THEN 55
+            WHEN c.milk_type = 'Gir milk' THEN 75
+            ELSE 0
+        END), 0) + COALESCE((SELECT SUM(quantity) FROM inventory), 0) AS todaysPurchase,
+
+    -- Monthly Purchase
+    COALESCE(SUM(ds.quantity * 
+        CASE 
+            WHEN c.milk_type = 'Buffalo milk' THEN 68
+            WHEN c.milk_type = 'Cow milk' THEN 55
+            WHEN c.milk_type = 'Gir milk' THEN 75
+            ELSE 0
+        END), 0) + COALESCE((SELECT SUM(quantity) FROM inventory), 0) AS monthlyPurchase
+FROM 
+    daily_sales ds
+JOIN 
+    customers c ON ds.customer_id = c.customer_id
+WHERE 
+    DATE(ds.sale_date) >= DATE_FORMAT(CURDATE() ,'%Y-%m-01')  -- From the start of the current month
+AND 
+    DATE(ds.sale_date) <= CURDATE();  -- Up to today
+
     `;
 
     const todaysRequestsSql = `
         SELECT COUNT(id) AS todaysRequests
         FROM orders
-        WHERE DATE(created_at) = CURDATE()
+        WHERE DATE(created_at) = CURDATE();
     `;
-
 
     const requestsFulfilledSql = `
         SELECT COUNT(bot_reply) AS requestsFulfilled
         FROM orders
-        WHERE DATE(created_at) = CURDATE()
+        WHERE DATE(created_at) = CURDATE() AND bot_reply IS NOT NULL;
     `;
 
     Promise.all([
@@ -133,7 +224,7 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].todaysSales || 0);
+                    resolve(results[0]?.todaysSalesInRupees || 0);
                 }
             });
         }),
@@ -142,7 +233,7 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].monthlySales || 0);
+                    resolve(results[0]?.monthlySalesInRupees || 0);
                 }
             });
         }),
@@ -151,7 +242,7 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].todaysPurchase || 0);
+                    resolve(results[0]?.todaysPurchase || 0);
                 }
             });
         }),
@@ -160,7 +251,7 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].monthlyPurchase || 0);
+                    resolve(results[0]?.monthlyPurchase || 0);
                 }
             });
         }),
@@ -169,7 +260,7 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].todaysRequests || 0);
+                    resolve(results[0]?.todaysRequests || 0);
                 }
             });
         }),
@@ -178,26 +269,25 @@ router.get('/dashboard-container', (req, res) => {
                 if (error) {
                     reject(error);
                 } else {
-                    resolve(results[0].requestsFulfilled || 0);
+                    resolve(results[0]?.requestsFulfilled || 0);
                 }
             });
         })
     ])
-        .then(([todaysSales, monthlySales, todaysPurchase, monthlyPurchase, todaysRequests, requestsFulfilled]) => {
-            res.json({
-                todaysSales,
-                monthlySales,
-                todaysPurchase,
-                monthlyPurchase,
-                todaysRequests,
-                requestsFulfilled
-            });
-        })
-        .catch(error => {
-            console.error('Error fetching dashboard data:', error);
-            res.status(500).json({ error: 'Error fetching dashboard data' });
+    .then(([todaysSales, monthlySales, todaysPurchase, monthlyPurchase, todaysRequests, requestsFulfilled]) => {
+        res.json({
+            todaysSales,
+            monthlySales,
+            todaysPurchase,
+            monthlyPurchase,
+            todaysRequests,
+            requestsFulfilled
         });
+    })
+    .catch(error => {
+        console.error('Error fetching dashboard data:', error);
+        res.status(500).json({ error: 'Error fetching dashboard data' });
+    });
 });
-
 
 module.exports = router;

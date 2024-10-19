@@ -95,7 +95,7 @@
                                 <th>DATE</th>
                                 <th>PRODUCT NAME</th>
                                 <th>PRICE</th>
-                                <th>IN STOCK</th>
+                                <!-- <th>IN STOCK</th> -->
                                 <th>QUANTITY</th>
                                 <th>ACTIONS</th>
                             </tr>
@@ -119,9 +119,9 @@
         <h2>Add New Product</h2>
         <form id="inventory-form">
             <input type="date" id="date" name="date" placeholder="Date" required>
-            <input type="text" id="productName" name="productName" placeholder="Product Name" required>
+            <input type="text" id="product_name" name="product_name" placeholder="Product Name" required>
             <input type="number" id="price" name="price" placeholder="Price" required>
-            <input type="text" id="inStock" name="inStock" placeholder="In Stock" required>
+            <!-- <input type="number" id="in_stock" name="in_stock" placeholder="In Stock" required> -->
             <input type="number" id="quantity" name="quantity" placeholder="Quantity" required>
             <button type="submit">Add Product</button>
             <button type="button" id="cancelAddProduct" style="background-color: red;">Cancel</button>
