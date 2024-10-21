@@ -40,16 +40,22 @@ function fetchInventoryData() {
             return response.json();
         })
         .then(data => {
+            console.log('Fetched Inventory Data:', data); // Log the fetched data
+
             const inventoryTableBody = document.getElementById('inventory-table-body');
             inventoryTableBody.innerHTML = ''; // Clear existing rows
+            
             data.forEach(item => {
+                console.log('Inventory Item:', item); // Log each item for debugging
+                
+                // Format date if necessary
+                const formattedDate = item.date ? new Date(item.date).toISOString().split('T')[0] : 'N/A';
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.id}</td>
-                    <td>${item.date}</td>
+                    <td>${formattedDate}</td>
                     <td>${item.product_name}</td>
                     <td>${item.price}</td>
-                    <td>${item.in_stock}</td>
                     <td>${item.quantity}</td>
                     <td><button onclick="deleteProduct(${item.id})">Delete</button></td>
                 `;
@@ -130,9 +136,9 @@ function addProduct() {
         method: 'POST',
         body: JSON.stringify({
             date: formData.get('date'),
-            productName: formData.get('product_name'),
+            product_name: formData.get('product_name'),
             price: formData.get('price'),
-            inStock: formData.get('in_stock'),
+            // in_stock: formData.get('in_stock'),
             quantity: formData.get('quantity')
         }),
         headers: {
